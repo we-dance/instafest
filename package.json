@@ -23,6 +23,8 @@
   },
   "devDependencies": {
     "@vite-pwa/assets-generator": "^0.2.4",
-    "@vite-pwa/nuxt": "^0.5.0"
+    "@vite-pwa/nuxt": "^0.5.0",
+    "@vueuse/core": "^10.7.2",
+    "@vueuse/nuxt": "^10.7.2"
   }
 }

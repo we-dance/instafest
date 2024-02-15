@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type LogoVariant = 'icon' | 'text' | 'full'
+type LogoVariant = 'icon' | 'text' | 'full' | 'full-on-dark'
 
 defineProps({
   variant: {
@@ -11,16 +11,22 @@ defineProps({
 
 <template>
   <img
-    v-if="variant === 'full'"
-    class="mx-auto h-10 w-auto"
+    v-if="variant === 'full-on-dark'"
+    class="h-10 w-auto"
+    src="/logo-horizontal-on-dark.svg"
+    alt="InstaFest"
+  />
+  <img
+    v-else-if="variant === 'full'"
+    class="h-10 w-auto"
     src="/logo-horizontal.svg"
     alt="InstaFest"
   />
   <img
     v-else-if="variant === 'text'"
-    class="mx-auto h-10 w-auto"
+    class="h-10 w-auto"
     src="/logo-text.svg"
     alt="InstaFest"
   />
-  <img v-else class="mx-auto h-10 w-auto" src="/logo.svg" alt="InstaFest" />
+  <img v-else class="h-10 w-auto" src="/logo.svg" alt="InstaFest" />
 </template>

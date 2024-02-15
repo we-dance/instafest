@@ -27,5 +27,5 @@ export default defineNuxtConfig({
       firebaseConfig: process.env.FIREBASE_CONFIG,
     },
   },
-  modules: ['@vite-pwa/nuxt'],
+  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt'],
 })

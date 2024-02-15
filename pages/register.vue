@@ -1,19 +1,24 @@
 <script setup lang="ts">
+import { type UserAccount } from '~/types/UserAccount'
+
 definePageMeta({
   layout: 'empty',
 })
 
-const { registerUser } = useFirebaseAuth()
+const { registerUser, authError } = useFirebaseAuth()
 const router = useRouter()
 
-const creds = reactive({
+const creds: UserAccount = reactive({
   email: '',
   password: '',
+  firstName: '',
+  lastName: '',
 })
 
 async function handleRegistration() {
-  await registerUser(creds.email, creds.password)
-  router.replace('/')
+  if (await registerUser(creds)) {
+    router.replace('/app')
+  }
 }
 </script>
 
@@ -22,7 +27,7 @@ async function handleRegistration() {
     class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8"
   >
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <AppLogo />
+      <app-logo class="mx-auto" />
       <h2
         class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
       >
@@ -70,7 +75,48 @@ async function handleRegistration() {
           </div>
         </div>
 
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div class="sm:col-span-3">
+            <label
+              for="first-name"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >First name</label
+            >
+            <div class="mt-2">
+              <input
+                v-model="creds.firstName"
+                type="text"
+                name="first-name"
+                id="first-name"
+                autocomplete="given-name"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label
+              for="last-name"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >Last name</label
+            >
+            <div class="mt-2">
+              <input
+                v-model="creds.lastName"
+                type="text"
+                name="last-name"
+                id="last-name"
+                autocomplete="family-name"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+        </div>
+
         <div>
+          <div v-if="authError" class="text-red-500 p-4 text-center">
+            {{ authError.message }}
+          </div>
           <button
             type="submit"
             class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

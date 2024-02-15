@@ -7,7 +7,7 @@ import type firebase from 'firebase/compat/app'
 declare module '#app' {
   interface NuxtApp {
     $auth: Auth
-    $firestore: Firestore
+    $db: Firestore
   }
 }
 
@@ -32,6 +32,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.provide('auth', auth)
   nuxtApp.provide('auth', auth)
 
-  nuxtApp.vueApp.provide('firestore', firestore)
-  nuxtApp.provide('firestore', firestore)
+  nuxtApp.vueApp.provide('db', firestore)
+  nuxtApp.provide('db', firestore)
 })

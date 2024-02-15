@@ -13,7 +13,7 @@ const creds = reactive({
 
 async function handleLogin() {
   await loginUser(creds.email, creds.password)
-  router.replace('/')
+  router.replace('/app')
 }
 </script>
 
@@ -22,7 +22,7 @@ async function handleLogin() {
     class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8"
   >
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <AppLogo />
+      <app-logo class="mx-auto" />
       <h2
         class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
       >

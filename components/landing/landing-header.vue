@@ -21,7 +21,7 @@ const mobileMenuOpen = ref(false)
       <div class="flex lg:flex-1">
         <router-link to="/" class="-m-1.5 p-1.5">
           <span class="sr-only">InstaFest</span>
-          <AppLogo variant="full" />
+          <app-logo variant="full" />
         </router-link>
       </div>
       <div class="flex lg:hidden">
@@ -64,7 +64,7 @@ const mobileMenuOpen = ref(false)
         <div class="flex items-center justify-between">
           <router-link to="/" class="-m-1.5 p-1.5">
             <span class="sr-only">InstaFest</span>
-            <AppLogo />
+            <app-logo />
           </router-link>
           <button
             type="button"

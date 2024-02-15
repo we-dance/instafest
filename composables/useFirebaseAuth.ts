@@ -5,16 +5,36 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
+import { type UserAccount } from '~/types/UserAccount'
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 
 export default function () {
-  const { $auth } = useNuxtApp()
+  const { $auth, $db } = useNuxtApp()
 
   const authLoaded = ref(false)
+  const authError = ref(null)
   const user = useState<User | null>('user', () => null)
+  const account = useState<UserAccount | null>('account', () => null)
 
   const logoutUser = async (): Promise<void> => {
     await signOut($auth)
     user.value = null
+  }
+
+  async function updateAccount(userAccount: UserAccount) {
+    await updateDoc(doc($db, 'accounts', user.value.uid), userAccount)
+  }
+
+  async function loadAccount() {
+    if (!user.value) {
+      return
+    }
+
+    const accountSnap = await getDoc(doc($db, 'accounts', user.value.uid))
+
+    if (accountSnap.exists()) {
+      account.value = accountSnap.data() as UserAccount
+    }
   }
 
   const loginUser = async (
@@ -23,53 +43,67 @@ export default function () {
   ): Promise<boolean> => {
     try {
       const userCreds = await signInWithEmailAndPassword($auth, email, password)
+
       if (userCreds) {
         user.value = userCreds.user
+        await loadAccount()
+
         return true
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error)
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        authError.value = e
       }
       return false
     }
     return false
   }
 
-  const registerUser = async (
-    email: string,
-    password: string
-  ): Promise<boolean> => {
+  const registerUser = async (userAccount: UserAccount): Promise<boolean> => {
     try {
       const userCreds = await createUserWithEmailAndPassword(
         $auth,
-        email,
-        password
+        userAccount.email,
+        userAccount.password
       )
+
       if (userCreds) {
         user.value = userCreds.user
+        await setDoc(doc($db, 'accounts', user.value.uid), userAccount)
+        await loadAccount()
+
         return true
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        // handle error
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        authError.value = e
       }
       return false
     }
     return false
+  }
+
+  function onAuthLoaded(callback: (loaded: boolean) => void) {
+    watch(authLoaded, callback)
   }
 
   onMounted(() => {
     onAuthStateChanged($auth, (firebaseUser) => {
-      authLoaded.value = true
       user.value = firebaseUser
+      authLoaded.value = true
+      loadAccount()
     })
   })
 
   return {
     user,
+    account,
     logoutUser,
     registerUser,
     loginUser,
+    authLoaded,
+    onAuthLoaded,
+    authError,
+    updateAccount,
   }
 }
