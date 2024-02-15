@@ -8,4 +8,23 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  app: {
+    head: {
+      htmlAttrs: {
+        class: 'h-full bg-white',
+      },
+      bodyAttrs: {
+        class: 'h-full',
+      },
+    },
+  },
+  runtimeConfig: {
+    // Private keys are only available on the server
+    apiSecret: '123',
+
+    // Public keys that are exposed to the client
+    public: {
+      firebaseConfig: process.env.FIREBASE_CONFIG,
+    },
+  },
 })

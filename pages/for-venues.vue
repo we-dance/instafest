@@ -5,7 +5,7 @@
     <main class="isolate">
       <landing-hero
         header="Bookings for dance instant and simple"
-        subheader="Book venues and artists easy and efficient. See when venue is available, reserve and pay from one place."
+        subheader="Provide easy and efficient scheduling for organisers to book your venue, eliminating the hassle of back-and-forth emails so you can get back to work."
       />
     </main>
   </div>
