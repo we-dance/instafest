@@ -21,7 +21,7 @@ const mobileMenuOpen = ref(false)
       <div class="flex lg:flex-1">
         <router-link to="/" class="-m-1.5 p-1.5">
           <span class="sr-only">InstaFest</span>
-          <AppLogo />
+          <AppLogo variant="full" />
         </router-link>
       </div>
       <div class="flex lg:hidden">
