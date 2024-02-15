@@ -20,5 +20,8 @@
     "tailwindcss": "^3.4.1",
     "vue": "^3.4.19",
     "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vite-pwa/assets-generator": "^0.2.4"
   }
 }

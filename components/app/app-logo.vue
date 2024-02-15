@@ -22,10 +22,5 @@ defineProps({
     src="/logo-text.svg"
     alt="InstaFest"
   />
-  <img
-    v-else
-    class="mx-auto h-10 w-auto"
-    src="/logo-icon.svg"
-    alt="InstaFest"
-  />
+  <img v-else class="mx-auto h-10 w-auto" src="/logo.svg" alt="InstaFest" />
 </template>
