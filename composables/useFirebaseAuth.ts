@@ -6,13 +6,13 @@ import {
   type User,
 } from 'firebase/auth'
 import { type UserAccount } from '~/types/UserAccount'
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 
 export default function () {
   const { $auth, $db } = useNuxtApp()
 
   const authLoaded = ref(false)
-  const authError = ref(null)
+  const authError = ref<Error | null>(null)
   const user = useState<User | null>('user', () => null)
   const account = useState<UserAccount | null>('account', () => null)
 
@@ -22,19 +22,27 @@ export default function () {
   }
 
   async function updateAccount(userAccount: UserAccount) {
-    await updateDoc(doc($db, 'accounts', user.value.uid), userAccount)
-  }
-
-  async function loadAccount() {
     if (!user.value) {
       return
     }
 
-    const accountSnap = await getDoc(doc($db, 'accounts', user.value.uid))
+    const data = { ...userAccount }
 
-    if (accountSnap.exists()) {
-      account.value = accountSnap.data() as UserAccount
+    await updateDoc(doc($db, 'accounts', user.value.uid), data)
+  }
+
+  function loadAccount() {
+    if (!user.value) {
+      return
     }
+
+    onSnapshot(doc($db, 'accounts', user.value.uid), (snap) => {
+      if (!snap.exists()) {
+        return
+      }
+
+      account.value = snap.data() as UserAccount
+    })
   }
 
   const loginUser = async (
@@ -46,7 +54,6 @@ export default function () {
 
       if (userCreds) {
         user.value = userCreds.user
-        await loadAccount()
 
         return true
       }
@@ -54,12 +61,17 @@ export default function () {
       if (e instanceof Error) {
         authError.value = e
       }
+
       return false
     }
     return false
   }
 
   const registerUser = async (userAccount: UserAccount): Promise<boolean> => {
+    if (!userAccount.password) {
+      return false
+    }
+
     try {
       const userCreds = await createUserWithEmailAndPassword(
         $auth,
@@ -69,8 +81,9 @@ export default function () {
 
       if (userCreds) {
         user.value = userCreds.user
-        await setDoc(doc($db, 'accounts', user.value.uid), userAccount)
-        await loadAccount()
+        const data = { ...userAccount }
+        delete data.password
+        await setDoc(doc($db, 'accounts', user.value.uid), data)
 
         return true
       }
@@ -78,13 +91,15 @@ export default function () {
       if (e instanceof Error) {
         authError.value = e
       }
+
       return false
     }
+
     return false
   }
 
-  function onAuthLoaded(callback: (loaded: boolean) => void) {
-    watch(authLoaded, callback)
+  function onAuthLoaded(callback: () => void) {
+    callback()
   }
 
   onMounted(() => {

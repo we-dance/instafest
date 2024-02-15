@@ -1,11 +1,19 @@
 <script setup>
 import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
+import { until } from '@vueuse/core'
 
 definePageMeta({
   layout: 'app',
 })
 
-const { account, updateAccount } = useFirebaseAuth()
+const { account: currentAccount, updateAccount } = useFirebaseAuth()
+
+const account = ref()
+
+onMounted(async () => {
+  await until(currentAccount).not.toBeNull()
+  account.value = { ...currentAccount.value }
+})
 </script>
 
 <template>
@@ -24,6 +32,24 @@ const { account, updateAccount } = useFirebaseAuth()
         </p>
 
         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div class="col-span-full">
+            <label
+              for="email"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >Email</label
+            >
+            <div class="mt-2">
+              <input
+                v-model="account.email"
+                type="text"
+                name="email"
+                id="email"
+                autocomplete="email"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+
           <div class="sm:col-span-3">
             <label
               for="first-name"
@@ -71,6 +97,7 @@ const { account, updateAccount } = useFirebaseAuth()
                 v-model="account.country"
                 type="text"
                 name="country"
+                disabled
                 id="country"
                 autocomplete="country"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"

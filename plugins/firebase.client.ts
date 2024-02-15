@@ -1,13 +1,18 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
-import { getFirestore, type Firestore } from 'firebase/firestore'
+import {
+  getFirestore,
+  connectFirestoreEmulator,
+  type Firestore,
+} from 'firebase/firestore'
 import { getAnalytics } from 'firebase/analytics'
-import type firebase from 'firebase/compat/app'
+import { connectFunctionsEmulator, getFunctions } from 'firebase/functions'
 
 declare module '#app' {
   interface NuxtApp {
     $auth: Auth
     $db: Firestore
+    $functions: ReturnType<typeof getFunctions>
   }
 }
 
@@ -27,11 +32,21 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const analytics = getAnalytics(app)
   const auth = getAuth(app)
-  const firestore = getFirestore(app)
+  const db = getFirestore(app)
+  const functions = getFunctions(app)
+
+  if (window.location.hostname === 'localhost' && config.public.emulators) {
+    console.log('Running in local mode')
+    connectFirestoreEmulator(db, '127.0.0.1', 8080)
+    connectFunctionsEmulator(functions, '127.0.0.1', 5001)
+  }
 
   nuxtApp.vueApp.provide('auth', auth)
   nuxtApp.provide('auth', auth)
 
-  nuxtApp.vueApp.provide('db', firestore)
-  nuxtApp.provide('db', firestore)
+  nuxtApp.vueApp.provide('db', db)
+  nuxtApp.provide('db', db)
+
+  nuxtApp.vueApp.provide('functions', functions)
+  nuxtApp.provide('functions', functions)
 })
