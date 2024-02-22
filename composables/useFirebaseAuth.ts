@@ -98,16 +98,10 @@ export default function () {
     return false
   }
 
-  function onAuthLoaded(callback: () => void) {
-    callback()
-  }
-
-  onMounted(() => {
-    onAuthStateChanged($auth, (firebaseUser) => {
-      user.value = firebaseUser
-      authLoaded.value = true
-      loadAccount()
-    })
+  onAuthStateChanged($auth, (firebaseUser) => {
+    user.value = firebaseUser
+    authLoaded.value = true
+    loadAccount()
   })
 
   return {
@@ -117,7 +111,6 @@ export default function () {
     registerUser,
     loginUser,
     authLoaded,
-    onAuthLoaded,
     authError,
     updateAccount,
   }

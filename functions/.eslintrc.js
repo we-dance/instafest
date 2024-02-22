@@ -29,5 +29,6 @@ module.exports = {
     'arrow-parens': ['error', 'always'],
     'object-curly-spacing': ['error', 'always'],
     'comma-dangle': ['error', 'only-multiline'],
+    'operator-linebreak': ['error', 'before'],
   },
 }
