@@ -4,4 +4,4 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 initializeApp()
 
-export { createStripeLink } from './lib/createStripeLink'
+export { createStripeLink } from './onCall/createStripeLink'

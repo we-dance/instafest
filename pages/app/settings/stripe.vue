@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const loading = ref(false)
+const { account } = useFirebaseAuth()
 
 async function connectStripe() {
   const config = useRuntimeConfig()
@@ -36,5 +37,6 @@ async function connectStripe() {
     >
       Connect Stripe
     </button>
+    <pre>{{ account }}</pre>
   </div>
 </template>

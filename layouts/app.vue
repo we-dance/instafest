@@ -19,6 +19,7 @@ import {
   DocumentDuplicateIcon,
   HomeIcon,
   UsersIcon,
+  SwatchIcon,
   XMarkIcon,
   MapPinIcon,
 } from '@heroicons/vue/24/outline'
@@ -33,10 +34,11 @@ const navigation = computed(() => [
     icon: HomeIcon,
     current: router.currentRoute.value.path === '/app',
   },
+  { name: 'Products', to: '/app/products', icon: SwatchIcon, current: false },
   { name: 'Instructors', to: '#', icon: UsersIcon, current: false },
   { name: 'Venues', to: '#', icon: MapPinIcon, current: false },
   { name: 'Events', to: '#', icon: CalendarIcon, current: false },
-  { name: 'Guests', to: '#', icon: DocumentDuplicateIcon, current: false },
+  { name: 'Customers', to: '#', icon: DocumentDuplicateIcon, current: false },
   { name: 'Reports', to: '#', icon: ChartPieIcon, current: false },
 ])
 
@@ -52,13 +54,7 @@ const userNavigation = [
 
 const sidebarOpen = ref(false)
 
-const { user, onAuthLoaded, account } = useFirebaseAuth()
-
-onAuthLoaded(() => {
-  if (!user.value && router.currentRoute.value.path.includes('/app')) {
-    router.replace('/')
-  }
-})
+const { account } = useFirebaseAuth()
 </script>
 
 <template>

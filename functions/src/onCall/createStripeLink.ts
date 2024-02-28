@@ -1,19 +1,9 @@
-import Stripe from 'stripe'
 import * as admin from 'firebase-admin'
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import * as logger from 'firebase-functions/logger'
+import { getStripe } from '../lib/stripe'
 
 export const createStripeLink = onCall(async (request) => {
-  const stripeKey = request.data?.test
-    ? String(process.env.STRIPE_SECRET_KEY_TEST)
-    : String(process.env.STRIPE_SECRET_KEY)
-
-  const stripeAccountIdKey = request.data?.test
-    ? 'stripeAccountIdTest'
-    : 'stripeAccountId'
-
-  const stripe = new Stripe(stripeKey)
-
   if (!request.auth?.uid) {
     throw new HttpsError('unauthenticated', 'Request had invalid credentials.')
   }
@@ -34,6 +24,8 @@ export const createStripeLink = onCall(async (request) => {
   if (!account) {
     throw new HttpsError('not-found', 'User does not exist.')
   }
+
+  const { stripe, stripeAccountIdKey } = getStripe(request.data?.test, account)
 
   let stripeAccountId = account[stripeAccountIdKey]
   if (!stripeAccountId) {
