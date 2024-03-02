@@ -17,7 +17,7 @@ async function connectStripe() {
   try {
     const { $functions } = useNuxtApp()
     const createStripeLink = httpsCallable($functions, 'createStripeLink')
-    const response = await createStripeLink({ test })
+    const response = await createStripeLink()
 
     window.location.href = response.data.url
   } catch (error) {

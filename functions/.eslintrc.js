@@ -30,5 +30,7 @@ module.exports = {
     'object-curly-spacing': ['error', 'always'],
     'comma-dangle': ['error', 'only-multiline'],
     'operator-linebreak': ['error', 'before'],
+    '@typescript-eslint/no-explicit-any': 'off',
+    'require-jsdoc': 'off',
   },
 }

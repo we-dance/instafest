@@ -9,14 +9,14 @@ initializeApp()
 
 const program = new Command()
 
-async function createProduct(test: boolean, productSnap: any, account: any) {
-  const product = { ...productSnap.data(), id: productSnap.id }
+async function createProduct(productSnap: any, account: any) {
+  const product: any = { ...productSnap.data(), id: productSnap.id }
 
   if (product.stripeProductId) {
     return
   }
 
-  const { stripe, options } = getStripe(test, account)
+  const { stripe, options } = getStripe(account)
 
   const stripeProduct = await stripe.products.create(
     {
@@ -62,15 +62,13 @@ program
   .argument('<accountId>', 'Product ID')
   .description('Create products in Stripe')
   .action(async (accountId) => {
-    const test = true
-
     const db = admin.firestore()
     const productSnaps = await db.collection('products').get()
     const accountSnap = await db.collection('accounts').doc(accountId).get()
     const account: any = { ...accountSnap.data(), id: accountSnap.id }
 
     for (const productSnap of productSnaps.docs) {
-      await createProduct(test, productSnap, account)
+      await createProduct(productSnap, account)
     }
   })
 
@@ -79,8 +77,6 @@ program
   .argument('<priceId>', 'Price ID')
   .description('Create checkout session in Stripe')
   .action(async (priceId) => {
-    const test = true
-
     const db = admin.firestore()
     const priceRefs = await db
       .collection('products')
@@ -100,7 +96,7 @@ program
       .get()
     const account: any = { ...accountSnap.data(), id: accountSnap.id }
 
-    const { stripe, options } = getStripe(test, account)
+    const { stripe, options } = getStripe(account)
 
     const session = await stripe.checkout.sessions.create(
       {
