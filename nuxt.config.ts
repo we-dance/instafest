@@ -1,21 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
-  css: ['~/assets/css/main.css'],
+  devtools: { enabled: false },
   postcss: {
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
-    },
-  },
-  app: {
-    head: {
-      htmlAttrs: {
-        class: 'h-full bg-white',
-      },
-      bodyAttrs: {
-        class: 'h-full',
-      },
     },
   },
   runtimeConfig: {
@@ -29,5 +18,26 @@ export default defineNuxtConfig({
       stripeMode: process.env.STRIPE_MODE,
     },
   },
-  modules: ['@vite-pwa/nuxt', '@vueuse/nuxt'],
+  modules: [
+    '@vite-pwa/nuxt',
+    '@vueuse/nuxt',
+    '@nuxtjs/tailwindcss',
+    'shadcn-nuxt',
+    '@nuxtjs/color-mode',
+  ],
+  shadcn: {
+    /**
+     * Prefix for all the imported component
+     */
+    prefix: '',
+    /**
+     * Directory that the component lives in.
+     * @default "./components/ui"
+     */
+    componentDir: './components/ui',
+  },
+  colorMode: {
+    preference: 'dark',
+    classSuffix: '',
+  },
 })

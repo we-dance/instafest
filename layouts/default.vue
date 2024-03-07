@@ -1,8 +1,18 @@
-<script setup></script>
+<script setup>
+definePageMeta({
+  colorMode: 'light',
+})
+
+useHead({
+  htmlAttrs: {
+    class: 'bg-white',
+  },
+})
+</script>
 
 <template>
-  <div class="bg-white">
-    <landing-header />
+  <div class="bg-white h-full">
+    <LandingHeader />
 
     <main class="isolate">
       <slot />
