@@ -45,7 +45,7 @@ const mobileMenuOpen = ref(false)
       </div>
       <div class="hidden lg:flex lg:flex-1 lg:justify-end">
         <router-link
-          to="/admin/login"
+          to="/admin/signin"
           class="text-sm font-semibold leading-6 text-gray-900"
           >Log in <span aria-hidden="true">&rarr;</span></router-link
         >
@@ -64,7 +64,7 @@ const mobileMenuOpen = ref(false)
         <div class="flex items-center justify-between">
           <router-link to="/" class="-m-1.5 p-1.5">
             <span class="sr-only">InstaFest</span>
-            <app-logo />
+            <InstafestLogo variant="full" />
           </router-link>
           <button
             type="button"
@@ -88,7 +88,7 @@ const mobileMenuOpen = ref(false)
             </div>
             <div class="py-6">
               <router-link
-                to="/admin/login"
+                to="/admin/signin"
                 class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                 >Log in</router-link
               >

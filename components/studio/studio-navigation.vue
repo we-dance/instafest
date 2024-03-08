@@ -1,5 +1,9 @@
 <script setup>
-import { CalendarIcon, DocumentDuplicateIcon } from '@heroicons/vue/24/outline'
+import {
+  CalendarIcon,
+  DocumentDuplicateIcon,
+  UserIcon,
+} from '@heroicons/vue/24/outline'
 
 const navigation = [
   { name: 'Termine', href: '#', icon: CalendarIcon, current: true },
@@ -7,6 +11,12 @@ const navigation = [
     name: 'Abonnements',
     href: '#',
     icon: DocumentDuplicateIcon,
+    current: false,
+  },
+  {
+    name: 'Mein Konto',
+    href: '/studio/app/settings',
+    icon: UserIcon,
     current: false,
   },
 ]
@@ -17,7 +27,7 @@ const navigation = [
     class="flex grow flex-col gap-y-5 overflow-y-auto bg-background px-6 py-4"
   >
     <div class="flex h-16 shrink-0 items-center">
-      <Logo class="h-16 w-auto" />
+      <StudioLogo class="h-16 w-auto" />
     </div>
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">

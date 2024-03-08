@@ -1,4 +1,8 @@
 <script setup>
+definePageMeta({
+  colorMode: 'light',
+})
+
 import { ref } from 'vue'
 import {
   Dialog,
@@ -30,11 +34,11 @@ const router = useRouter()
 const navigation = computed(() => [
   {
     name: 'Dashboard',
-    to: '/app',
+    to: '/admin',
     icon: HomeIcon,
-    current: router.currentRoute.value.path === '/app',
+    current: router.currentRoute.value.path === '/admin',
   },
-  { name: 'Products', to: '/app/products', icon: SwatchIcon, current: false },
+  { name: 'Products', to: '/admin/products', icon: SwatchIcon, current: false },
   { name: 'Instructors', to: '#', icon: UsersIcon, current: false },
   { name: 'Venues', to: '#', icon: MapPinIcon, current: false },
   { name: 'Events', to: '#', icon: CalendarIcon, current: false },
@@ -48,7 +52,7 @@ const teams = [
   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
 ]
 const userNavigation = [
-  { name: 'Your profile', to: '/app/profile' },
+  { name: 'Your profile', to: '/admin/profile' },
   { name: 'Sign out', to: '/logout' },
 ]
 
@@ -58,7 +62,7 @@ const { account } = useFirebaseAuth()
 </script>
 
 <template>
-  <div>
+  <div class="min-h-full">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog
         as="div"
@@ -115,7 +119,7 @@ const { account } = useFirebaseAuth()
                 class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10"
               >
                 <div class="flex h-16 shrink-0 items-center">
-                  <app-logo />
+                  <InstafestLogo variant="full-on-dark" />
                 </div>
                 <nav class="flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -169,7 +173,7 @@ const { account } = useFirebaseAuth()
                     </li>
                     <li class="mt-auto">
                       <router-link
-                        to="/app/settings/stripe"
+                        to="/admin/settings"
                         class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
                       >
                         <Cog6ToothIcon
@@ -197,7 +201,7 @@ const { account } = useFirebaseAuth()
         class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4"
       >
         <div class="flex h-16 shrink-0 items-center">
-          <app-logo variant="full-on-dark" />
+          <InstafestLogo variant="full-on-dark" />
         </div>
         <nav class="flex flex-1 flex-col">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -261,7 +265,7 @@ const { account } = useFirebaseAuth()
       </div>
     </div>
 
-    <div class="lg:pl-72">
+    <div class="lg:pl-72 min-h-full">
       <div
         class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
       >
@@ -356,7 +360,7 @@ const { account } = useFirebaseAuth()
         </div>
       </div>
 
-      <main class="py-10">
+      <main class="py-10 bg-background">
         <div class="px-4 sm:px-6 lg:px-8">
           <slot />
         </div>

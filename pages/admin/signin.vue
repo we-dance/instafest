@@ -1,25 +1,25 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'empty',
-  colorMode: 'dark',
+  colorMode: 'light',
 })
 </script>
 
 <template>
   <header class="m-4 h-16 flex">
-    <StudioLogo />
+    <InstafestLogo variant="full" />
   </header>
   <div class="p-4 max-w-[400px] mx-auto">
     <Tabs default-value="register">
       <TabsList class="grid w-full grid-cols-2">
-        <TabsTrigger value="register"> Registrieren </TabsTrigger>
-        <TabsTrigger value="login"> Anmelden </TabsTrigger>
+        <TabsTrigger value="register"> Register </TabsTrigger>
+        <TabsTrigger value="login"> Login </TabsTrigger>
       </TabsList>
       <TabsContent value="register">
-        <UserRegistrationForm />
+        <AdminRegistrationForm />
       </TabsContent>
       <TabsContent value="login">
-        <UserLoginForm />
+        <AdminLoginForm />
       </TabsContent>
     </Tabs>
   </div>

@@ -13,10 +13,7 @@ import {
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 
-const userNavigation = [
-  { name: 'Mein Konto', href: '#' },
-  { name: 'Abmelden', href: '#' },
-]
+const userNavigation = [{ name: 'Abmelden', href: '#' }]
 
 const sidebarOpen = ref(false)
 </script>
@@ -90,7 +87,7 @@ const sidebarOpen = ref(false)
     <div
       class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"
     >
-      <Navigation />
+      <StudioNavigation />
     </div>
 
     <div class="lg:pl-72">
@@ -150,8 +147,8 @@ const sidebarOpen = ref(false)
                     <a
                       :href="item.href"
                       :class="[
-                        active ? 'bg-gray-50' : '',
-                        'block px-3 py-1 text-sm leading-6 text-gray-900',
+                        active ? 'bg-accent' : '',
+                        'block px-3 py-1 text-sm leading-6 text-primary',
                       ]"
                       >{{ item.name }}</a
                     >

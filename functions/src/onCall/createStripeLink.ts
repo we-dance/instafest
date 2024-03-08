@@ -53,8 +53,8 @@ export const createStripeLink = onCall(
     try {
       const accountLink = await stripe.accountLinks.create({
         account: stripeAccountId,
-        refresh_url: `${baseUrl}/app/settings/stripe?refresh=true`,
-        return_url: `${baseUrl}/app/settings/stripe?success=true`,
+        refresh_url: `${baseUrl}/admin/settings/stripe?refresh=true`,
+        return_url: `${baseUrl}/admin/settings/stripe?success=true`,
         type: 'account_onboarding',
       })
 

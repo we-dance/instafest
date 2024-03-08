@@ -78,28 +78,20 @@ export default function () {
       return false
     }
 
-    try {
-      const userCreds = await createUserWithEmailAndPassword(
-        $auth,
-        userAccount.email,
-        userAccount.password
-      )
+    const userCreds = await createUserWithEmailAndPassword(
+      $auth,
+      userAccount.email,
+      userAccount.password
+    )
 
-      if (userCreds) {
-        user.value = userCreds.user
-        uid.value = userCreds.user.uid
-        const data = { ...userAccount }
-        delete data.password
-        await setDoc(doc($db, 'accounts', user.value.uid), data)
+    if (userCreds) {
+      user.value = userCreds.user
+      uid.value = userCreds.user.uid
+      const data = { ...userAccount }
+      delete data.password
+      await setDoc(doc($db, 'accounts', user.value.uid), data)
 
-        return true
-      }
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        authError.value = e
-      }
-
-      return false
+      return true
     }
 
     return false
