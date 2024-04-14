@@ -53,7 +53,7 @@ const teams = [
 ]
 const userNavigation = [
   { name: 'Your profile', to: '/admin/profile' },
-  { name: 'Sign out', to: '/logout' },
+  { name: 'Sign out', to: '/admin/logout' },
 ]
 
 const sidebarOpen = ref(false)
