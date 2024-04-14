@@ -1,4 +1,5 @@
 <script setup>
+import { Loader2 } from 'lucide-vue-next'
 import { httpsCallable } from 'firebase/functions'
 
 definePageMeta({
@@ -9,9 +10,6 @@ const loading = ref(false)
 const { account } = useFirebaseAuth()
 
 async function connectStripe() {
-  const config = useRuntimeConfig()
-  const test = config.public.stripeMode === 'test'
-
   loading.value = true
 
   try {
@@ -22,21 +20,38 @@ async function connectStripe() {
     window.location.href = response.data.url
   } catch (error) {
     console.error('Error connecting to Stripe:', error)
-  } finally {
-    loading.value = false
   }
 }
 </script>
 
 <template>
   <div>
-    <button
-      :disabled="loading"
-      class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-      @click="connectStripe()"
+    <h2 class="text-base font-semibold leading-7 text-gray-900">
+      Integrations
+    </h2>
+    <p class="mt-1 text-sm leading-6 text-gray-500">
+      Connect applications to your account.
+    </p>
+
+    <ul
+      role="list"
+      class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm leading-6"
     >
-      Connect Stripe
-    </button>
-    <pre>{{ account }}</pre>
+      <li class="flex justify-between gap-x-6 py-6">
+        <div class="font-medium text-gray-900">Stripe</div>
+        <div class="flex gap-2">
+          <span v-if="account && account.stripeAccountId" class="text-green-600"
+            >Connected</span
+          >
+          <Button v-else :disabled="loading" @click="connectStripe()">
+            <template v-if="loading">
+              <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
+              Please wait
+            </template>
+            <template v-else>Connect</template>
+          </Button>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>

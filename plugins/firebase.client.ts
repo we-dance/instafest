@@ -33,7 +33,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const analytics = getAnalytics(app)
   const auth = getAuth(app)
   const db = getFirestore(app)
-  const functions = getFunctions(app)
+  const functions = getFunctions(app, 'europe-west3')
 
   if (window.location.hostname === 'localhost' && config.public.emulators) {
     console.log('Running in local mode')
