@@ -1,47 +1,60 @@
 <script setup lang="ts">
-import { addDoc, collection } from 'firebase/firestore'
-import { useForm } from 'vee-validate'
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore'
+import { useForm, configure } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { toast } from '~/components/ui/toast/use-toast'
 import { durationOptions, productShema } from '~/types/product'
 
+const emit = defineEmits(['close'])
+const product = defineModel('product', { type: Object, default: {} })
+
+configure({
+  validateOnBlur: false,
+})
+
 const form = useForm({
   validationSchema: toTypedSchema(productShema),
+  initialValues: product.value,
 })
 
 const { $db } = useNuxtApp()
 const { uid } = useFirebaseAuth()
 const { orgId } = useOrganizationStore()
-const open = ref(false)
 
 const onSubmit = form.handleSubmit(async (values: any) => {
-  open.value = false
-
   const data = {
     ...values,
-    description: values.description || '',
-    createdAt: +new Date(),
     updatedAt: +new Date(),
-    createdBy: uid.value,
     updatedBy: uid.value,
   }
 
+  if (!product.value.id) {
+    data.createdBy = uid.value
+    data.createdAt = +new Date()
+  }
+
   try {
-    await addDoc(collection($db, 'organizations', orgId, 'products'), data)
+    if (!product.value.id) {
+      await addDoc(collection($db, 'organizations', orgId, 'products'), data)
+    } else {
+      await updateDoc(
+        doc($db, 'organizations', orgId, 'products', product.value.id),
+        data
+      )
+    }
   } catch (error: any) {
     toast({
       title: 'Error',
       description: error.message,
     })
   }
+  emit('close')
 })
 </script>
 
 <template>
-  <Dialog v-model:open="open">
-    <DialogTrigger as-child>
-      <Button variant="outline"> Add Product </Button>
-    </DialogTrigger>
+  <Toaster />
+  <Dialog open @update:open="(v) => v || emit('close')">
     <DialogContent class="sm:max-w-[425px]">
       <form @submit.prevent="onSubmit">
         <DialogHeader>

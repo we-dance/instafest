@@ -9,10 +9,10 @@ export const durationOptions = [
 ]
 
 export const productShema = z.object({
-  name: z.string().min(3),
-  description: z.string().optional(),
+  name: z.string(),
+  description: z.string().optional().default(''),
   price: z.number().gt(0),
-  duration: z.string(),
+  duration: z.string().optional().default('0'),
 })
 
 export type Product = z.infer<typeof productShema>

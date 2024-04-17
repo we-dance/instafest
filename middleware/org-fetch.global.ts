@@ -1,6 +1,6 @@
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useOrganizationStore } from '~/stores/organization'
-import type { Organization } from '~/types/Organization'
+import type { Organization } from '~/types/organization'
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const slug = to.params.org

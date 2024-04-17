@@ -48,6 +48,7 @@ const onSubmit = form.handleSubmit(async (values: any) => {
 </script>
 
 <template>
+  <Toaster />
   <form @submit.prevent="onSubmit">
     <Card>
       <CardHeader>

@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { h } from 'vue'
-import { collection, onSnapshot, query } from 'firebase/firestore'
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+} from 'firebase/firestore'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { durationOptions, type Product } from '~/types/product'
+import AdminRowActions from '~/components/admin/AdminRowActions'
 
 definePageMeta({
   layout: 'admin',
@@ -10,8 +17,19 @@ definePageMeta({
 
 const { $db } = useNuxtApp()
 const { orgId } = useOrganizationStore()
-
 const products = ref([])
+const product = ref({})
+const editing = ref(false)
+
+function edit(id: string) {
+  product.value = id === '-' ? {} : products.value.find((p) => p.id === id)
+  editing.value = true
+}
+
+async function remove(id: string) {
+  await deleteDoc(doc($db, 'organizations', orgId, 'products', id))
+}
+
 const columns: ColumnDef<Product>[] = [
   {
     accessorKey: 'name',
@@ -42,6 +60,17 @@ const columns: ColumnDef<Product>[] = [
       }).format(amount)
 
       return h('div', { class: 'text-right font-medium' }, formatted)
+    },
+  },
+  {
+    id: 'actions',
+    enableHiding: false,
+    cell: ({ row }) => {
+      return h(AdminRowActions, {
+        item: row.original,
+        onEdit: edit,
+        onRemove: remove,
+      })
     },
   },
 ]
@@ -75,8 +104,14 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
           List of products available for purchase
         </p>
       </div>
-      <AdminProductForm />
+      <Button variant="outline" @click="edit('-')"> Add Product </Button>
     </div>
+
+    <AdminProductForm
+      v-if="editing"
+      v-model:product="product"
+      @close="editing = false"
+    />
 
     <DataTable :data="products" :columns="columns" />
   </div>

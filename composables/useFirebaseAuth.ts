@@ -5,7 +5,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { type UserAccount } from '~/types/UserAccount'
+import { type UserAccount } from '~/types/userAccount'
 import { doc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 
 export default function () {
