@@ -98,10 +98,10 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
   <div class="h-full flex-1 flex-col space-y-8 p-8 md:flex">
     <div class="flex items-center justify-between space-y-2">
       <div>
-        <h2 class="text-2xl font-bold tracking-tight">Events</h2>
-        <p class="text-muted-foreground">List of events</p>
+        <h2 class="text-2xl font-bold tracking-tight">Instructors</h2>
+        <p class="text-muted-foreground">List of instructors</p>
       </div>
-      <Button variant="outline" @click="edit('-')"> Add Event </Button>
+      <Button variant="outline" @click="edit('-')"> Add Instructor </Button>
     </div>
 
     <AdminEventForm

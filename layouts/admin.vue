@@ -36,7 +36,12 @@ const navigation = computed(() => [
     icon: SwatchIcon,
     current: router.currentRoute.value.path === `/${orgSlug}/admin/products`,
   },
-  { name: 'Instructors', to: '#', icon: UsersIcon, current: false },
+  {
+    name: 'Instructors',
+    to: `/${orgSlug}/admin/instructors`,
+    icon: UsersIcon,
+    current: router.currentRoute.value.path === `/${orgSlug}/admin/instructors`,
+  },
   {
     name: 'Venues',
     to: `/${orgSlug}/admin/venues`,
@@ -49,7 +54,12 @@ const navigation = computed(() => [
     icon: CalendarIcon,
     current: router.currentRoute.value.path === `/${orgSlug}/admin/events`,
   },
-  { name: 'Customers', to: '#', icon: DocumentDuplicateIcon, current: false },
+  {
+    name: 'Customers',
+    to: `/${orgSlug}/admin/customers`,
+    icon: DocumentDuplicateIcon,
+    current: router.currentRoute.value.path === `/${orgSlug}/admin/customers`,
+  },
   {
     name: 'Settings',
     to: `/${orgSlug}/admin/settings`,

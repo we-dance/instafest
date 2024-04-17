@@ -100,9 +100,7 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
     <div class="flex items-center justify-between space-y-2">
       <div>
         <h2 class="text-2xl font-bold tracking-tight">Products</h2>
-        <p class="text-muted-foreground">
-          List of products available for purchase
-        </p>
+        <p class="text-muted-foreground">List of products</p>
       </div>
       <Button variant="outline" @click="edit('-')"> Add Product </Button>
     </div>
