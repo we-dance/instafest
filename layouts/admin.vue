@@ -26,27 +26,41 @@ const { account } = useFirebaseAuth()
 const navigation = computed(() => [
   {
     name: 'Dashboard',
-    to: '/admin',
+    to: `/${orgSlug}/admin`,
     icon: HomeIcon,
-    current: router.currentRoute.value.path === '/admin',
+    current: router.currentRoute.value.path === `/${orgSlug}/admin`,
   },
   {
     name: 'Products',
     to: `/${orgSlug}/admin/products`,
     icon: SwatchIcon,
-    current: false,
+    current: router.currentRoute.value.path === `/${orgSlug}/admin/products`,
   },
   { name: 'Instructors', to: '#', icon: UsersIcon, current: false },
-  { name: 'Venues', to: '#', icon: MapPinIcon, current: false },
-  { name: 'Events', to: '#', icon: CalendarIcon, current: false },
+  {
+    name: 'Venues',
+    to: `/${orgSlug}/admin/venues`,
+    icon: MapPinIcon,
+    current: router.currentRoute.value.path === `/${orgSlug}/admin/venues`,
+  },
+  {
+    name: 'Events',
+    to: `/${orgSlug}/admin/events`,
+    icon: CalendarIcon,
+    current: router.currentRoute.value.path === `/${orgSlug}/admin/events`,
+  },
   { name: 'Customers', to: '#', icon: DocumentDuplicateIcon, current: false },
   {
     name: 'Settings',
     to: `/${orgSlug}/admin/settings`,
     icon: Cog6ToothIcon,
-    current: false,
+    current: router.currentRoute.value.path === `/${orgSlug}/admin/settings`,
   },
-  { name: 'Your profile', to: '/admin/profile' },
+  {
+    name: 'Your profile',
+    to: '/admin/profile',
+    current: router.currentRoute.value.path === '/admin/profile',
+  },
   { name: 'Sign out', to: '/admin/logout' },
 ])
 
