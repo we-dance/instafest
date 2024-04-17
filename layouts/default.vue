@@ -1,8 +1,4 @@
 <script setup>
-definePageMeta({
-  colorMode: 'light',
-})
-
 useHead({
   htmlAttrs: {
     class: 'bg-white',

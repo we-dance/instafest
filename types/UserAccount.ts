@@ -4,4 +4,5 @@ export type UserAccount = {
   firstName: string
   lastName: string
   country: string
+  id: string
 }

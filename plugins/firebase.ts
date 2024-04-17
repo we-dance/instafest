@@ -5,7 +5,6 @@ import {
   connectFirestoreEmulator,
   type Firestore,
 } from 'firebase/firestore'
-import { getAnalytics } from 'firebase/analytics'
 import { connectFunctionsEmulator, getFunctions } from 'firebase/functions'
 
 declare module '#app' {
@@ -30,12 +29,15 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const app = initializeApp(firebaseConfig)
 
-  const analytics = getAnalytics(app)
   const auth = getAuth(app)
   const db = getFirestore(app)
   const functions = getFunctions(app, 'europe-west3')
 
-  if (window.location.hostname === 'localhost' && config.public.emulators) {
+  if (
+    window &&
+    window.location.hostname === 'localhost' &&
+    config.public.emulators
+  ) {
     console.log('Running in local mode')
     connectFirestoreEmulator(db, '127.0.0.1', 8080)
     connectFunctionsEmulator(functions, '127.0.0.1', 5001)

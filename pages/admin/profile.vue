@@ -1,10 +1,9 @@
 <script setup>
-import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
-import { until } from '@vueuse/core'
-
 definePageMeta({
   layout: 'admin',
 })
+
+import { until } from '@vueuse/core'
 
 const { account: currentAccount, updateAccount } = useFirebaseAuth()
 
