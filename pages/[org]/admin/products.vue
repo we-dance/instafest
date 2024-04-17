@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h } from 'vue'
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, onSnapshot, query } from 'firebase/firestore'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { durationOptions, type Product } from '~/types/product'
 
@@ -9,7 +9,6 @@ definePageMeta({
 })
 
 const { $db } = useNuxtApp()
-const { uid } = useFirebaseAuth()
 const { orgId } = useOrganizationStore()
 
 const products = ref([])
