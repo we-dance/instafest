@@ -68,8 +68,9 @@ const navigation = computed(() => [
   },
   {
     name: 'Your profile',
-    to: '/admin/profile',
-    current: router.currentRoute.value.path === '/admin/profile',
+    to: `/${orgSlug}/admin/settings/profile`,
+    current:
+      router.currentRoute.value.path === `/${orgSlug}/admin/settings/profile`,
   },
   { name: 'Sign out', to: '/admin/logout' },
 ])

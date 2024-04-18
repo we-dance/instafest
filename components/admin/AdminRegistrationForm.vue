@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import * as z from 'zod'
 import { toast } from '~/components/ui/toast/use-toast'
+import { adminAccountShemaInput } from '~/types/adminAccount'
 
 const form = useForm({
-  validationSchema: toTypedSchema(
-    z.object({
-      email: z.string().email(),
-      password: z.string().min(6),
-      firstName: z.string().min(2),
-      lastName: z.string().min(2),
-      country: z.string().min(2),
-    })
-  ),
+  validationSchema: toTypedSchema(adminAccountShemaInput),
   initialValues: {
     country: 'DE',
   },

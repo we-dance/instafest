@@ -1,19 +1,24 @@
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useOrganizationStore } from '~/stores/organization'
 import type { Organization } from '~/types/organization'
+import { onAuthStateChanged } from 'firebase/auth'
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const slug = to.params.org
   if (!slug) return
 
-  const { $db } = useNuxtApp()
+  const { $auth, $db } = useNuxtApp()
   if (!$db) return
 
-  const orgStore = useOrganizationStore()
+  const { setOrg, isOwner } = useOrganizationStore()
+  const { setUser, loadAccount } = useFirebaseAuth()
+
+  onAuthStateChanged($auth, setUser)
+  await loadAccount()
 
   const orgRef = collection($db, 'organizations')
   const querySnapshot = await getDocs(query(orgRef, where('slug', '==', slug)))
-  const orgData = querySnapshot.docs
+  const org = querySnapshot.docs
     .map(
       (doc) =>
         ({
@@ -23,12 +28,19 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     )
     .find((o) => o.slug === slug)
 
-  if (orgData) {
-    orgStore.setOrg(orgData)
-  } else {
+  if (!org) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Organization Not Found',
+    })
+  }
+
+  setOrg(org)
+
+  if (!isOwner()) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Forbidden',
     })
   }
 })

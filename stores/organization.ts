@@ -7,6 +7,16 @@ export const useOrganizationStore = defineStore('organization', () => {
   const orgId = computed(() => org.value?.id)
   const orgSlug = computed(() => org.value?.slug)
 
+  const { uid } = useFirebaseAuth()
+
+  function isOwner() {
+    if (!uid.value) {
+      return false
+    }
+
+    return org.value?.owners.includes(uid.value)
+  }
+
   function setOrg(data: Organization) {
     org.value = data
   }
@@ -16,5 +26,6 @@ export const useOrganizationStore = defineStore('organization', () => {
     orgId,
     setOrg,
     orgSlug,
+    isOwner,
   }
 })

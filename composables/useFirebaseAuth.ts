@@ -1,53 +1,56 @@
 import {
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   type User,
 } from 'firebase/auth'
-import { type UserAccount } from '~/types/userAccount'
-import { doc, setDoc, onSnapshot, updateDoc } from 'firebase/firestore'
+import { adminAccountShema, type AdminAccount } from '~/types/adminAccount'
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
+import { until } from '@vueuse/core'
 
 export default function () {
   const { $auth, $db } = useNuxtApp()
 
-  const authLoaded = ref(false)
-  const authError = ref<Error | null>(null)
-  const uid = useLocalStorage<String | null>('uid', null)
+  const authStateInitialized = useState<Boolean>(
+    'authStateInitialized',
+    () => false
+  )
   const user = useState<User | null>('user', () => null)
-  const account = useState<UserAccount | null>('account', () => null)
+  const account = useState<AdminAccount | null>('account', () => null)
+  const authError = ref<Error | null>(null)
+  const uid = computed(() => user.value?.uid)
 
   const logoutUser = async (): Promise<void> => {
     await signOut($auth)
     user.value = null
-    uid.value = null
   }
 
-  async function updateAccount(userAccount: UserAccount) {
+  async function updateAccount(userAccount: AdminAccount) {
     if (!user.value) {
       return
     }
 
     const data = { ...userAccount }
 
-    await updateDoc(doc($db, 'accounts', user.value.uid), data)
+    await updateDoc(doc($db, 'accounts', uid.value), data)
+    await loadAccount()
   }
 
-  function loadAccount() {
-    if (!user.value) {
+  async function loadAccount() {
+    await until(authStateInitialized).toBe(true)
+
+    if (!uid.value) {
       return
     }
 
-    onSnapshot(doc($db, 'accounts', user.value.uid), (snap) => {
-      if (!snap.exists()) {
-        return
-      }
+    const accountRef = await getDoc(doc($db, 'accounts', uid.value))
 
-      account.value = {
-        ...snap.data(),
-        id: snap.id,
-      }
+    account.value = adminAccountShema.parse({
+      ...accountRef.data(),
+      id: accountRef.id,
     })
+
+    return account.value
   }
 
   const loginUser = async (
@@ -59,7 +62,6 @@ export default function () {
 
       if (userCreds) {
         user.value = userCreds.user
-        uid.value = userCreds.user.uid
 
         return true
       }
@@ -73,7 +75,7 @@ export default function () {
     return false
   }
 
-  const registerUser = async (userAccount: UserAccount): Promise<boolean> => {
+  const registerUser = async (userAccount: AdminAccount): Promise<boolean> => {
     if (!userAccount.password) {
       return false
     }
@@ -86,7 +88,6 @@ export default function () {
 
     if (userCreds) {
       user.value = userCreds.user
-      uid.value = userCreds.user.uid
       const data = { ...userAccount }
       delete data.password
       await setDoc(doc($db, 'accounts', user.value.uid), data)
@@ -97,22 +98,18 @@ export default function () {
     return false
   }
 
-  onMounted(() => {
-    onAuthStateChanged($auth, (firebaseUser) => {
-      user.value = firebaseUser
-      uid.value = firebaseUser?.uid
-      authLoaded.value = true
-      loadAccount()
-    })
-  })
+  function setUser(newUser: User | null) {
+    user.value = newUser
+    authStateInitialized.value = true
+  }
 
   return {
     user,
+    setUser,
     account,
     logoutUser,
     registerUser,
     loginUser,
-    authLoaded,
     authError,
     updateAccount,
     loadAccount,

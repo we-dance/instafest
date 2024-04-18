@@ -42,13 +42,13 @@ const onSubmit = form.handleSubmit(async (values: any) => {
         data
       )
     }
+    emit('close')
   } catch (error: any) {
     toast({
       title: 'Error',
       description: error.message,
     })
   }
-  emit('close')
 })
 </script>
 
