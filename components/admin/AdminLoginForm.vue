@@ -24,6 +24,7 @@ const onSubmit = form.handleSubmit(async (values: any, actions: any) => {
     toast({
       title: 'Error',
       description: error.message,
+      variant: 'destructive',
     })
   }
 })

@@ -231,6 +231,7 @@ const sidebarOpen = ref(false)
 
       <main class="py-10 bg-background">
         <div class="px-4 sm:px-6 lg:px-8">
+          <Toaster />
           <slot />
         </div>
       </main>

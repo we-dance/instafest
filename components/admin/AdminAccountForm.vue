@@ -2,6 +2,7 @@
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { adminAccountShema } from '~/types/adminAccount'
+import { toast } from '~/components/ui/toast/use-toast'
 
 const { account: currentAccount, updateAccount } = useFirebaseAuth()
 
@@ -17,13 +18,13 @@ const onSubmit = form.handleSubmit(async (values: any) => {
     toast({
       title: 'Error',
       description: error.message,
+      variant: 'destructive',
     })
   }
 })
 </script>
 
 <template>
-  <Toaster />
   <form @submit.prevent="onSubmit">
     <FormField v-slot="{ componentField }" name="firstName">
       <FormItem>

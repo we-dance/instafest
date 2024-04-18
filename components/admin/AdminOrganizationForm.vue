@@ -42,13 +42,13 @@ const onSubmit = form.handleSubmit(async (values: any) => {
     toast({
       title: 'Error',
       description: error.message,
+      variant: 'destructive',
     })
   }
 })
 </script>
 
 <template>
-  <Toaster />
   <form @submit.prevent="onSubmit">
     <Card>
       <CardHeader>

@@ -1,6 +1,7 @@
 <script setup>
 import { Loader2 } from 'lucide-vue-next'
 import { httpsCallable } from 'firebase/functions'
+import { toast } from '~/components/ui/toast/use-toast'
 
 definePageMeta({
   layout: 'admin',
@@ -8,6 +9,7 @@ definePageMeta({
 
 const loading = ref(false)
 const { account } = useFirebaseAuth()
+const { org, orgId } = useOrganizationStore()
 
 async function connectStripe() {
   loading.value = true
@@ -15,11 +17,17 @@ async function connectStripe() {
   try {
     const { $functions } = useNuxtApp()
     const createStripeLink = httpsCallable($functions, 'createStripeLink')
-    const response = await createStripeLink()
+    const response = await createStripeLink({ orgId })
 
     window.location.href = response.data.url
   } catch (error) {
-    console.error('Error connecting to Stripe:', error)
+    toast({
+      title: 'Error connecting Stripe',
+      description: error.message,
+      variant: 'destructive',
+    })
+
+    loading.value = false
   }
 }
 </script>
@@ -40,7 +48,7 @@ async function connectStripe() {
       <li class="flex justify-between gap-x-6 py-6">
         <div class="font-medium text-gray-900">Stripe</div>
         <div class="flex gap-2">
-          <span v-if="account && account.stripeAccountId" class="text-green-600"
+          <span v-if="org.stripeAccountId" class="text-green-600"
             >Connected</span
           >
           <Button v-else :disabled="loading" @click="connectStripe()">

@@ -4,11 +4,16 @@ import * as logger from 'firebase-functions/logger'
 import { getStripe } from '../lib/stripe'
 
 export const createStripeLink = onCall(async (request) => {
-  if (!request.auth?.uid) {
+  const userId = request.auth?.uid
+
+  if (!userId) {
     throw new HttpsError('unauthenticated', 'Request had invalid credentials.')
   }
 
-  const userId = request.auth.uid
+  const orgId = request.data?.orgId
+  if (!orgId) {
+    throw new HttpsError('invalid-argument', 'Organization ID is required.')
+  }
 
   const db = admin.firestore()
 
@@ -16,18 +21,31 @@ export const createStripeLink = onCall(async (request) => {
   const accountSnap = await accountRef.get()
 
   if (!accountSnap.exists) {
-    throw new HttpsError('not-found', 'User does not exist.')
+    throw new HttpsError('not-found', 'Account does not exist.')
   }
 
   const account = accountSnap.data()
 
   if (!account) {
-    throw new HttpsError('not-found', 'User does not exist.')
+    throw new HttpsError('not-found', 'Account does not exist.')
   }
 
-  const { stripe } = getStripe(account)
+  const orgRef = db.collection('organizations').doc(orgId)
+  const orgSnap = await orgRef.get()
 
-  let stripeAccountId = account.stripeAccountId
+  if (!orgSnap.exists) {
+    throw new HttpsError('not-found', 'Organization does not exist.')
+  }
+
+  const org = orgSnap.data()
+
+  if (!org) {
+    throw new HttpsError('not-found', 'Organization does not exist.')
+  }
+
+  const { stripe } = getStripe(org)
+
+  let stripeAccountId = org.stripeAccountId
   if (!stripeAccountId) {
     const stripeAccount = await stripe.accounts.create({
       country: account.country,
@@ -37,7 +55,7 @@ export const createStripeLink = onCall(async (request) => {
 
     stripeAccountId = stripeAccount.id
 
-    db.collection('accounts').doc(userId).update({
+    db.collection('organizations').doc(orgId).update({
       stripeAccountId,
     })
   }
@@ -48,8 +66,8 @@ export const createStripeLink = onCall(async (request) => {
   try {
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: `${baseUrl}/admin/settings?refresh=true`,
-      return_url: `${baseUrl}/admin/settings?success=true`,
+      refresh_url: `${baseUrl}/${org.slug}/admin/settings?refresh=true`,
+      return_url: `${baseUrl}/${org.slug}/admin/settings?success=true`,
       type: 'account_onboarding',
     })
 

@@ -60,6 +60,7 @@ const onSubmit = handleSubmit(async (values: any) => {
     toast({
       title: 'Error',
       description: error.message,
+      variant: 'destructive',
     })
   }
   emit('close')
@@ -67,7 +68,6 @@ const onSubmit = handleSubmit(async (values: any) => {
 </script>
 
 <template>
-  <Toaster />
   <Dialog open @update:open="(v) => v || emit('close')">
     <DialogContent class="sm:max-w-[500px]">
       <form @submit.prevent="onSubmit">

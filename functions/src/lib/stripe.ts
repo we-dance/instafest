@@ -1,8 +1,8 @@
 import Stripe from 'stripe'
 
-function getStripe(account: any) {
-  if (!account) {
-    throw new Error('Account is required')
+function getStripe(org: any) {
+  if (!org) {
+    throw new Error('Organization is required')
   }
 
   const stripeKey = String(process.env.STRIPE_SECRET_KEY)
@@ -10,7 +10,7 @@ function getStripe(account: any) {
   const stripe = new Stripe(stripeKey)
 
   const options = {
-    stripeAccount: account.stripeAccountId,
+    stripeAccount: org.stripeAccountId,
   }
 
   return { stripe, options }
