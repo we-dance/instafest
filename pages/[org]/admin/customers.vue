@@ -18,17 +18,17 @@ definePageMeta({
 
 const { $db } = useNuxtApp()
 const { orgId } = useOrganizationStore()
-const events = ref([])
-const event = ref({})
+const customers = ref([])
+const customer = ref({})
 const editing = ref(false)
 
 function edit(id: string) {
-  event.value = id === '-' ? {} : events.value.find((p) => p.id === id)
+  customer.value = id === '-' ? {} : customers.value.find((p) => p.id === id)
   editing.value = true
 }
 
 async function remove(id: string) {
-  await deleteDoc(doc($db, 'organizations', orgId, 'events', id))
+  await deleteDoc(doc($db, 'organizations', orgId, 'customers', id))
 }
 
 const df = new DateFormatter('en-US', {
@@ -42,22 +42,12 @@ const columns: ColumnDef<Event>[] = [
     header: 'Name',
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
+    accessorKey: 'email',
+    header: 'Email',
   },
   {
-    accessorKey: 'startDate',
-    header: 'Start Date',
-    cell: ({ row }) => {
-      return df.format(row.getValue('startDate'))
-    },
-  },
-  {
-    accessorKey: 'endDate',
-    header: 'End Date',
-    cell: ({ row }) => {
-      return df.format(row.getValue('endDate'))
-    },
+    accessorKey: 'phone',
+    header: 'Phone',
   },
   {
     id: 'actions',
@@ -75,16 +65,14 @@ const columns: ColumnDef<Event>[] = [
 const unsubscribe = ref(null)
 
 onMounted(() => {
-  const q = query(collection($db, 'organizations', orgId, 'events'))
+  const q = query(collection($db, 'organizations', orgId, 'customers'))
 
   unsubscribe.value = onSnapshot(q, (querySnapshot) => {
-    events.value = []
+    customers.value = []
 
     querySnapshot.forEach((doc) => {
-      events.value.push({
+      customers.value.push({
         ...doc.data(),
-        startDate: doc.data().startDate.toDate(),
-        endDate: doc.data().endDate.toDate(),
         id: doc.id,
       })
     })
@@ -106,10 +94,10 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
 
     <AdminEventForm
       v-if="editing"
-      v-model:event="event"
+      v-model:event="customer"
       @close="editing = false"
     />
 
-    <DataTable :data="events" :columns="columns" />
+    <DataTable :data="customers" :columns="columns" />
   </div>
 </template>
