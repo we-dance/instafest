@@ -9,6 +9,10 @@ export const useOrganizationStore = defineStore('organization', () => {
 
   const { uid } = useFirebaseAuth()
 
+  function link(to: string) {
+    return `/${orgSlug.value}${to}`
+  }
+
   function isOwner() {
     if (!uid.value) {
       return false
@@ -22,6 +26,7 @@ export const useOrganizationStore = defineStore('organization', () => {
   }
 
   return {
+    link,
     org,
     orgId,
     setOrg,

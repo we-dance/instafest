@@ -5,21 +5,26 @@ import {
   UserIcon,
 } from '@heroicons/vue/24/outline'
 
-const navigation = [
-  { name: 'Termine', href: '#', icon: CalendarIcon, current: true },
+const { link } = useOrganizationStore()
+const router = useRouter()
+
+const navigation = computed(() => [
+  {
+    name: 'Termine',
+    to: link('/app/'),
+    icon: CalendarIcon,
+  },
   {
     name: 'Abonnements',
-    href: '#',
+    to: link('/app/subscriptions'),
     icon: DocumentDuplicateIcon,
-    current: false,
   },
   {
     name: 'Mein Konto',
-    href: '/studio/app/settings',
+    to: link('/app/settings'),
     icon: UserIcon,
-    current: false,
   },
-]
+])
 </script>
 
 <template>
@@ -34,14 +39,9 @@ const navigation = [
         <li>
           <ul role="list" class="-mx-2 space-y-1">
             <li v-for="item in navigation" :key="item.name">
-              <a
-                :href="item.href"
-                :class="[
-                  item.current
-                    ? 'bg-primary-foreground text-foreground'
-                    : 'text-primary hover:text-foreground hover:bg-accent',
-                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                ]"
+              <router-link
+                :to="item.to"
+                class="text-primary hover:text-foreground hover:bg-accent group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
               >
                 <component
                   :is="item.icon"
@@ -49,7 +49,7 @@ const navigation = [
                   aria-hidden="true"
                 />
                 {{ item.name }}
-              </a>
+              </router-link>
             </li>
           </ul>
         </li>
@@ -57,3 +57,9 @@ const navigation = [
     </nav>
   </div>
 </template>
+
+<style scoped>
+.router-link-active {
+  @apply bg-primary-foreground text-foreground;
+}
+</style>

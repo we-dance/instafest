@@ -50,35 +50,26 @@ const onSubmit = form.handleSubmit(async (values: any) => {
 
 <template>
   <form @submit.prevent="onSubmit">
-    <Card>
-      <CardHeader>
-        <CardTitle>Add Organization</CardTitle>
-      </CardHeader>
-      <CardContent class="space-y-2">
-        <FormField v-slot="{ componentField }" name="name">
-          <FormItem>
-            <FormLabel>Name</FormLabel>
-            <FormControl>
-              <Input v-bind="componentField" />
-            </FormControl>
-            <FormDescription />
-            <FormMessage />
-          </FormItem>
-        </FormField>
-        <FormField v-slot="{ componentField }" name="website">
-          <FormItem>
-            <FormLabel>Website</FormLabel>
-            <FormControl>
-              <Input v-bind="componentField" />
-            </FormControl>
-            <FormDescription />
-            <FormMessage />
-          </FormItem>
-        </FormField>
-      </CardContent>
-      <CardFooter class="flex justify-end">
-        <Button>Next</Button>
-      </CardFooter>
-    </Card>
+    <FormField v-slot="{ componentField }" name="name">
+      <FormItem>
+        <FormLabel>Name</FormLabel>
+        <FormControl>
+          <Input v-bind="componentField" />
+        </FormControl>
+        <FormDescription />
+        <FormMessage />
+      </FormItem>
+    </FormField>
+    <FormField v-slot="{ componentField }" name="website">
+      <FormItem>
+        <FormLabel>Website</FormLabel>
+        <FormControl>
+          <Input v-bind="componentField" />
+        </FormControl>
+        <FormDescription />
+        <FormMessage />
+      </FormItem>
+    </FormField>
+    <Button type="submit">Submit</Button>
   </form>
 </template>

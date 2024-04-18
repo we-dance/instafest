@@ -7,7 +7,7 @@ import {
   query,
   getDocs,
 } from 'firebase/firestore'
-import { useForm } from 'vee-validate'
+import { useForm, configure } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { customerAccountSchemaInput } from '~/types/customerAccount'
 import { toast } from '~/components/ui/toast/use-toast'
@@ -18,6 +18,8 @@ const events = ref([])
 const products = ref([])
 
 function getLabel(event) {
+  if (!event.startDate || !event.endDate) return ''
+
   return `${event.startDate.toLocaleDateString('de-DE', {
     weekday: 'long',
     day: 'numeric',
@@ -50,14 +52,17 @@ onMounted(async () => {
   const eventRefs = await getDocs(
     query(collection($db, 'organizations', orgId, 'events'))
   )
-  events.value = eventRefs.docs.map((doc) => {
-    return {
+  events.value = eventRefs.docs
+    .map((doc) => ({
       ...doc.data(),
-      startDate: doc.data().startDate.toDate(),
-      endDate: doc.data().endDate.toDate(),
       id: doc.id,
-    }
-  })
+    }))
+    .map((event) => {
+      event.startDate = event.startDate ? event.startDate.toDate() : ''
+      event.endDate = event.endDate ? event.endDate.toDate() : ''
+
+      return event
+    })
 
   const productsRefs = await getDocs(
     query(collection($db, 'organizations', orgId, 'products'))
@@ -70,6 +75,10 @@ onMounted(async () => {
   })
 })
 
+configure({
+  validateOnBlur: false,
+})
+
 const form = useForm({
   validationSchema: toTypedSchema(customerAccountSchemaInput),
   initialValues: {
@@ -80,10 +89,11 @@ const form = useForm({
 })
 
 const { register } = useCustomer()
+const router = useRouter()
 
 const onSubmit = form.handleSubmit(async (values) => {
   try {
-    await register(values, org)
+    await register(values)
     router.push(`/${org.slug}/app`)
   } catch (error) {
     toast({

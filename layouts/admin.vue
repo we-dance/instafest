@@ -28,49 +28,40 @@ const navigation = computed(() => [
     name: 'Dashboard',
     to: `/${orgSlug}/admin`,
     icon: HomeIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin`,
   },
   {
     name: 'Products',
     to: `/${orgSlug}/admin/products`,
     icon: SwatchIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin/products`,
   },
   {
     name: 'Instructors',
     to: `/${orgSlug}/admin/instructors`,
     icon: UsersIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin/instructors`,
   },
   {
     name: 'Venues',
     to: `/${orgSlug}/admin/venues`,
     icon: MapPinIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin/venues`,
   },
   {
     name: 'Events',
     to: `/${orgSlug}/admin/events`,
     icon: CalendarIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin/events`,
   },
   {
     name: 'Customers',
     to: `/${orgSlug}/admin/customers`,
     icon: DocumentDuplicateIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin/customers`,
   },
   {
     name: 'Settings',
     to: `/${orgSlug}/admin/settings`,
     icon: Cog6ToothIcon,
-    current: router.currentRoute.value.path === `/${orgSlug}/admin/settings`,
   },
   {
     name: 'Your profile',
     to: `/${orgSlug}/admin/settings/profile`,
-    current:
-      router.currentRoute.value.path === `/${orgSlug}/admin/settings/profile`,
   },
   { name: 'Sign out', to: '/admin/logout' },
 ])
@@ -145,12 +136,7 @@ const sidebarOpen = ref(false)
                         <li v-for="item in navigation" :key="item.name">
                           <router-link
                             :to="item.to"
-                            :class="[
-                              item.current
-                                ? 'bg-gray-800 text-white'
-                                : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                              'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                            ]"
+                            class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                           >
                             <component
                               :is="item.icon"
@@ -195,12 +181,7 @@ const sidebarOpen = ref(false)
                 <li v-for="item in navigation" :key="item.name">
                   <router-link
                     :to="item.to"
-                    :class="[
-                      item.current
-                        ? 'bg-gray-800 text-white'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                    ]"
+                    class="text-gray-400 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                   >
                     <component
                       :is="item.icon"
@@ -238,3 +219,9 @@ const sidebarOpen = ref(false)
     </div>
   </div>
 </template>
+
+<style scoped>
+.router-link-active {
+  @apply bg-gray-800 text-white;
+}
+</style>

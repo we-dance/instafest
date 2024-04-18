@@ -3,16 +3,26 @@ import { useOrganizationStore } from '~/stores/organization'
 import type { Organization } from '~/types/organization'
 import { onAuthStateChanged } from 'firebase/auth'
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const slug = to.params.org
-  if (!slug) return
 
   const { $auth, $db } = useNuxtApp()
+
   if (!$db) return
 
-  const { setOrg, isOwner } = useOrganizationStore()
   const { setUser: setUserAdmin, loadAccount: loadAccountAdmin } =
     useFirebaseAuth()
+
+  if (!slug) {
+    if (to.fullPath === '/admin/') {
+      onAuthStateChanged($auth, setUserAdmin)
+      await loadAccountAdmin()
+    }
+
+    return
+  }
+
+  const { setOrg, isOwner } = useOrganizationStore()
 
   if (to.fullPath === '/logout') {
     return
@@ -45,19 +55,23 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   setOrg(org)
 
-  const { setUser: setUserCustomer, loadAccount: loadAccountCustomer } =
-    useCustomer()
+  const {
+    setUser: setUserCustomer,
+    loadAccount: loadAccountCustomer,
+    uid: uidCustomer,
+  } = useCustomer()
 
   if (to.meta.layout === 'admin' && !isOwner()) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Forbidden',
-    })
+    return navigateTo('/admin/signin')
   }
 
   if (to.meta.layout === 'studio') {
     onAuthStateChanged($auth, setUserCustomer)
 
     await loadAccountCustomer()
+
+    if (!uidCustomer.value) {
+      return navigateTo(`/${slug}`)
+    }
   }
 })

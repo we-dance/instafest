@@ -2,7 +2,6 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-  getAuth,
   type User,
 } from 'firebase/auth'
 import {
@@ -12,8 +11,6 @@ import {
 } from '~/types/adminAccount'
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 import { until } from '@vueuse/core'
-import type { CustomerAccountInput } from '~/types/customerAccount'
-import type { Organization } from '~/types/organization'
 
 export default function () {
   const { $auth, $db } = useNuxtApp()
@@ -27,15 +24,13 @@ export default function () {
   const authError = ref<Error | null>(null)
   const uid = computed(() => user.value?.uid)
 
-  const logoutUser = async (): Promise<void> => {
+  async function logoutUser(): Promise<void> {
     await signOut($auth)
     user.value = null
   }
 
   async function updateAccount(userAccount: AdminAccount) {
-    if (!user.value) {
-      return
-    }
+    if (!uid.value) return
 
     const data = { ...userAccount }
 
@@ -44,7 +39,7 @@ export default function () {
   }
 
   async function loadAccount() {
-    console.log('loading admin account')
+    console.log('admin: loadAccount')
     await until(authStateInitialized).toBe(true)
 
     if (!uid.value) {
@@ -54,18 +49,19 @@ export default function () {
     const accountRef = doc($db, 'accounts', uid.value)
     const accountSnap = await getDoc(accountRef)
 
-    account.value = adminAccountShema.parse({
-      ...accountSnap.data(),
-      id: accountSnap.id,
-    })
+    try {
+      account.value = adminAccountShema.parse({
+        ...accountSnap.data(),
+        id: accountSnap.id,
+      })
+    } catch (error) {
+      logoutUser()
+    }
 
     return account.value
   }
 
-  const loginUser = async (
-    email: string,
-    password: string
-  ): Promise<boolean> => {
+  async function loginUser(email: string, password: string): Promise<boolean> {
     const userCreds = await signInWithEmailAndPassword($auth, email, password)
 
     if (userCreds) {
@@ -86,37 +82,11 @@ export default function () {
 
     if (userCreds) {
       user.value = userCreds.user
+      if (!uid.value) return false
+
       const data: any = { ...input }
       delete data.password
-      await setDoc(doc($db, 'accounts', user.value.uid), data)
-
-      return true
-    }
-
-    return false
-  }
-
-  async function registerCustomer(
-    input: CustomerAccountInput,
-    org: Organization
-  ): Promise<boolean> {
-    const auth = getAuth()
-    auth.tenantId = org.tenantId
-
-    const userCreds = await createUserWithEmailAndPassword(
-      auth,
-      input.email,
-      input.password
-    )
-
-    if (userCreds) {
-      user.value = userCreds.user
-      const data: any = { ...input }
-      delete data.password
-      await setDoc(
-        doc($db, 'organizations', org.id, 'customers', user.value.uid),
-        data
-      )
+      await setDoc(doc($db, 'accounts', uid.value), data)
 
       return true
     }
@@ -125,12 +95,12 @@ export default function () {
   }
 
   function setUser(newUser: User | null) {
+    console.log('admin user', newUser)
     user.value = newUser
     authStateInitialized.value = true
   }
 
   return {
-    registerCustomer,
     user,
     setUser,
     account,

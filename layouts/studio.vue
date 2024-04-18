@@ -13,9 +13,10 @@ import {
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 
-const userNavigation = [{ name: 'Abmelden', href: '#' }]
+const userNavigation = [{ name: 'Abmelden', to: '/logout' }]
 
 const sidebarOpen = ref(false)
+const { account } = useCustomer()
 </script>
 
 <template>
@@ -121,7 +122,7 @@ const sidebarOpen = ref(false)
                   <span
                     class="ml-4 text-sm font-semibold leading-6 text-gray-100"
                     aria-hidden="true"
-                    >Tom Cook</span
+                    >{{ account.name }}</span
                   >
                   <ChevronDownIcon
                     class="ml-2 h-5 w-5 text-gray-400"
@@ -145,13 +146,13 @@ const sidebarOpen = ref(false)
                     :key="item.name"
                     v-slot="{ active }"
                   >
-                    <a
-                      :href="item.href"
+                    <router-link
+                      :to="item.to"
                       :class="[
                         active ? 'bg-accent' : '',
                         'block px-3 py-1 text-sm leading-6 text-primary',
                       ]"
-                      >{{ item.name }}</a
+                      >{{ item.name }}</router-link
                     >
                   </MenuItem>
                 </MenuItems>

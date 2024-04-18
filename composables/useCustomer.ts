@@ -2,23 +2,19 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
+  signOut,
   type User,
 } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import {
   customerAccountSchema,
   type CustomerAccount,
   type CustomerAccountInput,
 } from '~/types/customerAccount'
-import type { Organization } from '~/types/organization'
 
 export default function () {
   const { $db } = useNuxtApp()
   const { org } = useOrganizationStore()
-
-  if (!org) {
-    throw new Error('Organization not found')
-  }
 
   const authStateInitialized = useState<Boolean>(
     'authStateInitialized',
@@ -28,29 +24,52 @@ export default function () {
   const account = useState<CustomerAccount | null>('account', () => null)
   const uid = computed(() => user.value?.uid)
 
+  async function logoutUser(): Promise<void> {
+    const auth = getAuth()
+    if (!org) return
+
+    auth.tenantId = org.tenantId
+
+    await signOut(auth)
+    user.value = null
+  }
+
   async function loadAccount() {
-    console.log('loading customer account')
     await until(authStateInitialized).toBe(true)
 
-    if (!uid.value) {
-      return
-    }
+    if (!uid.value) return
+    if (!org) return
 
     const accountRef = doc($db, 'organizations', org.id, 'customers', uid.value)
     const accountSnap = await getDoc(accountRef)
 
-    account.value = customerAccountSchema.parse({
-      ...accountSnap.data(),
-      id: accountSnap.id,
-    })
+    try {
+      account.value = customerAccountSchema.parse({
+        ...accountSnap.data(),
+        id: accountSnap.id,
+      })
+    } catch (error) {
+      logoutUser()
+    }
 
     return account.value
   }
 
-  async function register(
-    input: CustomerAccountInput,
-    org: Organization
-  ): Promise<boolean> {
+  async function updateAccount(input: CustomerAccount) {
+    if (!uid.value) return false
+    if (!org) return false
+
+    const data = { ...input }
+
+    const accountRef = doc($db, 'organizations', org.id, 'customers', uid.value)
+
+    await updateDoc(accountRef, data)
+    await loadAccount()
+  }
+
+  async function register(input: CustomerAccountInput): Promise<boolean> {
+    if (!org) return false
+
     const auth = getAuth()
     auth.tenantId = org.tenantId
 
@@ -62,6 +81,8 @@ export default function () {
 
     if (userCreds) {
       user.value = userCreds.user
+      if (!uid.value) return false
+
       const data: any = { ...input }
       delete data.password
       const accountRef = doc(
@@ -69,7 +90,7 @@ export default function () {
         'organizations',
         org.id,
         'customers',
-        user.value.uid
+        uid.value
       )
       await setDoc(accountRef, data)
 
@@ -80,11 +101,14 @@ export default function () {
   }
 
   function setUser(newUser: User | null) {
+    console.log('customer user', newUser)
     user.value = newUser
     authStateInitialized.value = true
   }
 
   async function login(email: string, password: string): Promise<boolean> {
+    if (!org) return false
+
     const auth = getAuth()
     auth.tenantId = org.tenantId
     const userCreds = await signInWithEmailAndPassword(auth, email, password)
@@ -100,6 +124,7 @@ export default function () {
 
   return {
     loadAccount,
+    updateAccount,
     register,
     user,
     setUser,
