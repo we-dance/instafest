@@ -101,7 +101,6 @@ export default function () {
   }
 
   function setUser(newUser: User | null) {
-    console.log('customer user', newUser)
     user.value = newUser
     authStateInitialized.value = true
   }

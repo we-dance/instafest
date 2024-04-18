@@ -63,7 +63,7 @@ const navigation = computed(() => [
     name: 'Your profile',
     to: `/${orgSlug}/admin/settings/profile`,
   },
-  { name: 'Sign out', to: '/admin/logout' },
+  { name: 'Sign out', to: '/logout' },
 ])
 
 const sidebarOpen = ref(false)

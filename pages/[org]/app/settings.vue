@@ -39,7 +39,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
 <template>
   <div class="container max-w-[600px] mx-auto">
-    <form>
+    <form @submit.prevent="onSubmit">
       <Card>
         <CardHeader>
           <CardTitle>Persönliche Daten</CardTitle>

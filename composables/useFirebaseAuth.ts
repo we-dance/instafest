@@ -39,7 +39,6 @@ export default function () {
   }
 
   async function loadAccount() {
-    console.log('admin: loadAccount')
     await until(authStateInitialized).toBe(true)
 
     if (!uid.value) {
@@ -95,7 +94,6 @@ export default function () {
   }
 
   function setUser(newUser: User | null) {
-    console.log('admin user', newUser)
     user.value = newUser
     authStateInitialized.value = true
   }
