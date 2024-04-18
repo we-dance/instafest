@@ -11,6 +11,7 @@ useHead({
     <LandingHeader />
 
     <main class="isolate">
+      <Toaster />
       <slot />
     </main>
   </div>

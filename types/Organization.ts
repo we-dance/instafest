@@ -3,4 +3,5 @@ export type Organization = {
   id: string
   slug: string
   owners: string[]
+  tenantId: string
 }

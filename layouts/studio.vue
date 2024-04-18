@@ -20,6 +20,7 @@ const sidebarOpen = ref(false)
 
 <template>
   <div>
+    <Toaster />
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog
         as="div"

@@ -1,129 +1,102 @@
 <script setup>
-const double = ref(false)
-const student = ref(false)
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  getDocs,
+} from 'firebase/firestore'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { customerAccountSchemaInput } from '~/types/customerAccount'
+import { toast } from '~/components/ui/toast/use-toast'
 
-const availableOptions = [
-  {
-    value: 'Probestunde',
-    displayText: '15.00€ – Probestunde',
-    extra: 'Probestunde gratis bei Kursanmeldung',
-    description: '2 Probestunden für 2 Tanzstile in 1 Woche',
-    student: false,
-    double: false,
-  },
-  {
-    value: 'Salsea Flex',
-    displayText: '90.00€ einmalig – 1 Monat',
-    student: false,
-    double: false,
-  },
-  {
-    value: 'ABOx3',
-    displayText: '80.00€ monatlich – 3 Monate',
-    extra: 'Inkl. 1 Party im Monat',
-    student: false,
-    double: false,
-  },
-  {
-    value: 'ABOx6',
-    displayText: '70.00€ monatlich – 6 Monate',
-    extra: 'Inkl. 2 Partys im Monat',
-    student: false,
-    double: false,
-  },
-  {
-    value: 'Probestunde',
-    displayText: '15.00€ – Probestunde',
-    extra: 'Probestunde gratis bei Kursanmeldung',
-    student: false,
-    double: true,
-  },
-  {
-    value: 'Salsea Flex',
-    displayText: '120.00€ einmalig – 1 Monat',
-    student: false,
-    double: true,
-  },
-  {
-    value: 'ABOx3',
-    displayText: '110.00€ monatlich – 3 Monate',
-    extra: 'Inkl. 1 Party im Monat',
-    student: false,
-    double: true,
-  },
-  {
-    value: 'ABOx6',
-    displayText: '100.00€ monatlich – 6 Monate',
-    extra: 'Inkl. 2 Partys im Monat',
-    student: false,
-    double: true,
-  },
-  ////////
-  {
-    value: 'Probestunde',
-    displayText: '15.00€ – Probestunde',
-    extra: 'Probestunde gratis bei Kursanmeldung',
-    student: true,
-    double: false,
-  },
-  {
-    value: 'Salsea Flex',
-    displayText: '75.00€ einmalig – 1 Monat',
-    student: true,
-    double: false,
-  },
-  {
-    value: 'ABOx3',
-    displayText: '65.00€ monatlich – 3 Monate',
-    extra: 'Inkl. 1 Party im Monat',
-    student: true,
-    double: false,
-  },
-  {
-    value: 'ABOx6',
-    displayText: '55.00€ monatlich – 6 Monate',
-    extra: 'Inkl. 2 Partys im Monat',
-    student: true,
-    double: false,
-  },
-  {
-    value: 'Probestunde',
-    displayText: '15.00€ – Probestunde',
-    extra: 'Probestunde gratis bei Kursanmeldung',
-    student: true,
-    double: true,
-  },
-  {
-    value: 'Salsea Flex',
-    displayText: '95.00€ einmalig – 1 Monat',
-    student: true,
-    double: true,
-  },
-  {
-    value: 'ABOx3',
-    displayText: '85.00€ monatlich – 3 Monate',
-    extra: 'Inkl. 1 Party im Monat',
-    student: true,
-    double: true,
-  },
-  {
-    value: 'ABOx6',
-    displayText: '75.00€ monatlich – 6 Monate',
-    extra: 'Inkl. 2 Partys im Monat',
-    student: true,
-    double: true,
-  },
-]
+const { org, orgId } = useOrganizationStore()
+const { $db } = useNuxtApp()
+const events = ref([])
+const products = ref([])
 
-const packageOptions = computed(() => {
-  return availableOptions.filter((option) => {
-    return option.student === student.value && option.double === double.value
+function getLabel(event) {
+  return `${event.startDate.toLocaleDateString('de-DE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })}, ${event.startDate.toLocaleTimeString('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}-${event.endDate.toLocaleTimeString('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
+}
+
+const eventsOptions = computed(() =>
+  events.value.map((event) => ({
+    value: event.id,
+    label: getLabel(event),
+  }))
+)
+
+const productOptions = computed(() =>
+  products.value.map((product) => ({
+    value: product.id,
+    displayText: `${product.price}€ – ${product.name}`,
+    description: product.description,
+  }))
+)
+
+onMounted(async () => {
+  const eventRefs = await getDocs(
+    query(collection($db, 'organizations', orgId, 'events'))
+  )
+  events.value = eventRefs.docs.map((doc) => {
+    return {
+      ...doc.data(),
+      startDate: doc.data().startDate.toDate(),
+      endDate: doc.data().endDate.toDate(),
+      id: doc.id,
+    }
   })
+
+  const productsRefs = await getDocs(
+    query(collection($db, 'organizations', orgId, 'products'))
+  )
+  products.value = productsRefs.docs.map((doc) => {
+    return {
+      ...doc.data(),
+      id: doc.id,
+    }
+  })
+})
+
+const form = useForm({
+  validationSchema: toTypedSchema(customerAccountSchemaInput),
+  initialValues: {
+    level: 'beginner',
+    course: eventsOptions.value[0]?.value || '',
+    package: productOptions.value[0]?.value || '',
+  },
+})
+
+const { register } = useCustomer()
+
+const onSubmit = form.handleSubmit(async (values) => {
+  try {
+    await register(values, org)
+    router.push(`/${org.slug}/app`)
+  } catch (error) {
+    toast({
+      title: 'Error',
+      description: error.message,
+      variant: 'destructive',
+    })
+  }
 })
 </script>
 
 <template>
-  <form>
+  <form @submit.prevent="onSubmit">
     <Card>
       <CardHeader>
         <CardTitle>Neu hier?</CardTitle>
@@ -136,7 +109,7 @@ const packageOptions = computed(() => {
           <FormItem>
             <FormLabel>Dein Tanzlevel</FormLabel>
             <FormControl>
-              <Select v-bind="componentField" default-value="beginner">
+              <Select v-bind="componentField">
                 <SelectTrigger>
                   <SelectValue placeholder="Wähle dein Tanzlevel" />
                 </SelectTrigger>
@@ -156,64 +129,26 @@ const packageOptions = computed(() => {
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="level">
+        <FormField v-slot="{ componentField }" name="course">
           <FormItem>
             <FormLabel>Datum deines nächsten Kurses auswählen</FormLabel>
             <FormControl>
-              <Select v-bind="componentField" default-value="11.03">
+              <Select v-bind="componentField">
                 <SelectTrigger>
-                  <SelectValue placeholder="Wähle dein Tanzlevel" />
+                  <SelectValue placeholder="Wähle dein Kurs" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="11.03">
-                      Montag, 11 März, 19:00-20:00</SelectItem
+                    <SelectItem
+                      v-for="event in eventsOptions"
+                      :key="event.value"
+                      :value="event.value"
                     >
-                    <SelectItem value="08.04">
-                      Montag, 8 April, 19:00-20:00
-                    </SelectItem>
-                    <SelectItem value="06.05">
-                      Montag, 6 Mai, 19:00-20:00
-                    </SelectItem>
+                      {{ event.label }}</SelectItem
+                    >
                   </SelectGroup>
                 </SelectContent>
               </Select>
-            </FormControl>
-            <FormDescription />
-            <FormMessage />
-          </FormItem>
-        </FormField>
-
-        <FormField v-slot="{ componentField }" name="student">
-          <FormItem>
-            <FormLabel />
-            <FormControl>
-              <div class="flex items-center space-x-2">
-                <Switch
-                  :checked="student"
-                  v-bind="componentField"
-                  @update:checked="student = !student"
-                />
-                <Label for="airplane-mode">Ich bin Student/in</Label>
-              </div>
-            </FormControl>
-            <FormDescription />
-            <FormMessage />
-          </FormItem>
-        </FormField>
-
-        <FormField v-slot="{ componentField }" name="double">
-          <FormItem>
-            <FormLabel />
-            <FormControl>
-              <div class="flex items-center space-x-2">
-                <Switch
-                  :checked="double"
-                  v-bind="componentField"
-                  @update:checked="double = !double"
-                />
-                <Label for="airplane-mode">2 mal pro Woche</Label>
-              </div>
             </FormControl>
             <FormDescription />
             <FormMessage />
@@ -231,14 +166,11 @@ const packageOptions = computed(() => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem
-                      v-for="option in packageOptions"
+                      v-for="option in productOptions"
                       :key="option.value"
                       :value="option.value"
                     >
                       {{ option.displayText }}
-                      <div v-if="option.extra" class="text-xs text-gray-500">
-                        {{ option.extra }}
-                      </div>
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -317,9 +249,7 @@ const packageOptions = computed(() => {
         </FormField>
       </CardContent>
       <CardFooter class="flex justify-end">
-        <Button as-child>
-          <router-link to="/studio/app/settings">Weiter</router-link>
-        </Button>
+        <Button type="submit"> Weiter </Button>
       </CardFooter>
     </Card>
   </form>

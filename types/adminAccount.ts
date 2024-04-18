@@ -6,7 +6,6 @@ export const adminAccountShemaInput = z.object({
   firstName: z.string().min(2),
   lastName: z.string().min(2),
   country: z.string().min(2),
-  id: z.string().optional(),
 })
 
 export const adminAccountShema = z.object({
@@ -17,4 +16,5 @@ export const adminAccountShema = z.object({
   id: z.string().optional(),
 })
 
+export type AdminAccountInput = z.infer<typeof adminAccountShemaInput>
 export type AdminAccount = z.infer<typeof adminAccountShema>

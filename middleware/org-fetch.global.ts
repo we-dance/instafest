@@ -11,10 +11,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   if (!$db) return
 
   const { setOrg, isOwner } = useOrganizationStore()
-  const { setUser, loadAccount } = useFirebaseAuth()
+  const { setUser: setUserAdmin, loadAccount: loadAccountAdmin } =
+    useFirebaseAuth()
 
-  onAuthStateChanged($auth, setUser)
-  await loadAccount()
+  if (to.fullPath === '/logout') {
+    return
+  }
+
+  if (to.meta.layout === 'admin') {
+    onAuthStateChanged($auth, setUserAdmin)
+
+    await loadAccountAdmin()
+  }
 
   const orgRef = collection($db, 'organizations')
   const querySnapshot = await getDocs(query(orgRef, where('slug', '==', slug)))
@@ -37,10 +45,19 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   setOrg(org)
 
-  if (!isOwner()) {
+  const { setUser: setUserCustomer, loadAccount: loadAccountCustomer } =
+    useCustomer()
+
+  if (to.meta.layout === 'admin' && !isOwner()) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Forbidden',
     })
+  }
+
+  if (to.meta.layout === 'studio') {
+    onAuthStateChanged($auth, setUserCustomer)
+
+    await loadAccountCustomer()
   }
 })

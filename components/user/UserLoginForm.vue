@@ -13,13 +13,14 @@ const form = useForm({
   ),
 })
 
-const { loginUser } = useFirebaseAuth()
+const { org } = useOrganizationStore()
+const { login } = useCustomer()
 const router = useRouter()
 
-const onSubmit = form.handleSubmit(async (values: any, actions: any) => {
+const onSubmit = form.handleSubmit(async (values: any) => {
   try {
-    await loginUser(values.email, values.password)
-    router.replace('/studio/app/settings')
+    await login(values.email, values.password)
+    router.replace(`/${org.slug}/app/settings`)
   } catch (error: any) {
     toast({
       title: 'Error',
@@ -63,7 +64,7 @@ const onSubmit = form.handleSubmit(async (values: any, actions: any) => {
         </FormField>
       </CardContent>
       <CardFooter class="flex justify-end">
-        <Button>Anmelden</Button>
+        <Button type="submit">Anmelden</Button>
       </CardFooter>
     </Card>
   </form>
