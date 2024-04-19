@@ -29,8 +29,8 @@ const navigation = computed(() => [
     icon: SwatchIcon,
   },
   {
-    name: 'Instructors',
-    to: `/${orgSlug}/admin/instructors`,
+    name: 'Team',
+    to: `/${orgSlug}/admin/team`,
     icon: UsersIcon,
   },
   {

@@ -95,9 +95,9 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
 </script>
 
 <template>
-  <AdminPage header="Instructors" subheader="List of instructors">
+  <AdminPage header="Team" subheader="Instructors, DJs, Photographers, etc.">
     <template #toolbar>
-      <Button variant="outline" @click="edit('-')"> Add Instructor </Button>
+      <Button variant="outline" @click="edit('-')"> Add Member </Button>
     </template>
 
     <AdminEventForm
