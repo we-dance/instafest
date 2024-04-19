@@ -33,14 +33,10 @@ async function connectStripe() {
 </script>
 
 <template>
-  <div>
-    <h2 class="text-base font-semibold leading-7 text-gray-900">
-      Integrations
-    </h2>
-    <p class="mt-1 text-sm leading-6 text-gray-500">
-      Connect applications to your account.
-    </p>
-
+  <AdminPage
+    header="Integrations"
+    subheader="Connect applications to your account"
+  >
     <ul
       role="list"
       class="mt-6 divide-y divide-gray-100 border-t border-gray-200 text-sm leading-6"
@@ -61,5 +57,5 @@ async function connectStripe() {
         </div>
       </li>
     </ul>
-  </div>
+  </AdminPage>
 </template>

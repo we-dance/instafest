@@ -83,14 +83,10 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
 </script>
 
 <template>
-  <div class="h-full flex-1 flex-col space-y-8 p-8 md:flex">
-    <div class="flex items-center justify-between space-y-2">
-      <div>
-        <h2 class="text-2xl font-bold tracking-tight">Customers</h2>
-        <p class="text-muted-foreground">List of customers</p>
-      </div>
+  <AdminPage header="Customers" subheader="List of customers">
+    <template #toolbar>
       <Button variant="outline" @click="edit('-')"> Add Customer </Button>
-    </div>
+    </template>
 
     <AdminEventForm
       v-if="editing"
@@ -99,5 +95,5 @@ onUnmounted(() => unsubscribe.value && unsubscribe.value())
     />
 
     <DataTable :data="customers" :columns="columns" />
-  </div>
+  </AdminPage>
 </template>
