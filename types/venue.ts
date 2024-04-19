@@ -3,8 +3,7 @@ import { z } from 'zod'
 export const schema = z.object({
   name: z.string(),
   description: z.string().optional().default(''),
-  startDate: z.coerce.date(),
-  endDate: z.coerce.date(),
+  address: z.string().optional().default(''),
 })
 
-export type Event = z.infer<typeof schema>
+export type Venue = z.infer<typeof schema>

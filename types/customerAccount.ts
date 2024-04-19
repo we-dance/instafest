@@ -16,7 +16,6 @@ export const customerAccountSchema = z.object({
   name: z.string().min(2),
   gender: z.string(),
   phone: z.string(),
-  id: z.string().optional(),
 })
 
 export type CustomerAccountInput = z.infer<typeof customerAccountSchemaInput>

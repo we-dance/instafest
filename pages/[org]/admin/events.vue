@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { eventSchema } from '~/types/event'
+import { schema } from '~/types/event'
 
 definePageMeta({
   layout: 'admin',
@@ -13,6 +13,6 @@ definePageMeta({
     add="Add Event"
     edit="Edit Event"
     collection="events"
-    :schema="eventSchema"
+    :schema="schema"
   />
 </template>
