@@ -10,7 +10,7 @@ useHead({
   <div class="bg-white h-full">
     <LandingHeader />
 
-    <main class="isolate">
+    <main class="isolate relative">
       <Toaster />
       <slot />
     </main>

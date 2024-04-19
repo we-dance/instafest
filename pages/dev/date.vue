@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'empty',
+})
+
 import { formatDate } from '~/lib/utils'
 
 const today = new Date()

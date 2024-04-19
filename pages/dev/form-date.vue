@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'empty',
+})
+
 import { z } from 'zod'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
