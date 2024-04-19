@@ -10,11 +10,9 @@ useHead({
 </script>
 
 <template>
-  <div class="w-full min-h-full">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
 
 <style>
