@@ -57,6 +57,10 @@ export function getFieldsDef(schema: z.ZodObject<any>): FieldDef[] {
       column.as = InputDate
     }
 
+    if (schema.shape[key]._def.typeName === 'ZodNumber') {
+      column.bind.type = 'number'
+    }
+
     return column
   })
 }
