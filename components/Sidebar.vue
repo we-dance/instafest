@@ -19,7 +19,9 @@ defineProps({
         <Bars3Icon class="h-6 w-6" aria-hidden="true" />
       </SheetTrigger>
       <SheetContent side="left">
-        <slot />
+        <SheetClose>
+          <slot />
+        </SheetClose>
       </SheetContent>
     </Sheet>
     <div>{{ title }}</div>
