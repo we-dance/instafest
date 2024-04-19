@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { schema } from '~/types/product'
+import { schema, columns } from '~/types/product'
 
 definePageMeta({
   layout: 'admin',
@@ -14,5 +14,6 @@ definePageMeta({
     edit="Edit Product"
     collection="products"
     :schema="schema"
+    :columns="columns"
   />
 </template>

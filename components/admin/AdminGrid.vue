@@ -34,6 +34,12 @@ const props = defineProps({
     type: String,
     default: 'Edit',
   },
+  fields: {
+    type: Array,
+  },
+  columns: {
+    type: Array,
+  },
 })
 
 const { $db } = useNuxtApp()
@@ -86,9 +92,11 @@ onMounted(() => {
 
 onUnmounted(() => unsubscribe.value && unsubscribe.value())
 
-const fields = getFieldsDef(props.schema)
-const columns = [
-  ...getColumnsDef(props.schema),
+const computedFields = props.fields || getFieldsDef(props.schema)
+const computedColumns = props.columns || getColumnsDef(props.schema)
+
+const extendedColumns = [
+  ...computedColumns,
   {
     id: 'actions',
     enableHiding: false,
@@ -114,11 +122,11 @@ const columns = [
       v-model:item="item"
       :collection="collection"
       :title="edit"
-      :fields="fields"
+      :fields="computedFields"
       :schema="schema"
       @close="editing = false"
     />
 
-    <DataTable :data="items" :columns="columns" />
+    <DataTable :data="items" :columns="extendedColumns" />
   </AdminPage>
 </template>

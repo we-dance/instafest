@@ -6,7 +6,7 @@ import { DateFormatter } from '@internationalized/date'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { z } from 'zod'
 import Input from '~/components/ui/input/Input.vue'
-import { InputDate } from '~/components/ui/input'
+import { InputDate, InputSelect } from '~/components/ui/input'
 
 const df = new DateFormatter('en-US', {
   dateStyle: 'long',
@@ -44,9 +44,12 @@ export type FieldDef = {
   bind: Record<string, any>
 }
 
-export function getFieldsDef(schema: z.ZodObject<any>): FieldDef[] {
+export function getFieldsDef(
+  schema: z.ZodObject<any>,
+  extend?: Record<string, any>
+): FieldDef[] {
   return Object.keys(schema.shape).map((key) => {
-    const column: FieldDef = {
+    let column: FieldDef = {
       accessorKey: key,
       label: deCamelCase(key),
       as: Input,
@@ -61,15 +64,32 @@ export function getFieldsDef(schema: z.ZodObject<any>): FieldDef[] {
       column.bind.type = 'number'
     }
 
+    if (schema.shape[key]._def.typeName === 'ZodEnum') {
+      column.as = InputSelect
+      column.bind.options = schema.shape[key]._def.options
+    }
+
+    if (extend && extend[key]?.bind) {
+      column.bind = { ...column.bind, ...extend[key].bind }
+    }
+
     return column
   })
 }
 
-export function getColumnsDef<T>(schema: z.ZodObject<any>): ColumnDef<T>[] {
+export function getColumnsDef<T>(
+  schema: z.ZodObject<any>,
+  extend?: Record<string, any>
+): ColumnDef<T>[] {
   return Object.keys(schema.shape).map((key) => {
     const column: ColumnDef<T> = {
       accessorKey: key,
       header: deCamelCase(key),
+    }
+
+    if (extend && extend[key]?.cell) {
+      column.cell = extend[key].cell
+      return column
     }
 
     if (schema.shape[key]._def.typeName === 'ZodDate') {

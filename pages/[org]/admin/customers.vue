@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { customerAccountSchema } from '~/types/customerAccount'
+import { customerAccountSchema, fields, columns } from '~/types/customerAccount'
 
 definePageMeta({
   layout: 'admin',
@@ -14,5 +14,7 @@ definePageMeta({
     edit="Edit Customer"
     collection="customers"
     :schema="customerAccountSchema"
+    :fields="fields"
+    :columns="columns"
   />
 </template>

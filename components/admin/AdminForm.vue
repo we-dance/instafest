@@ -38,7 +38,7 @@ configure({
   validateOnBlur: false,
 })
 
-const { handleSubmit, setFieldValue } = useForm({
+const { handleSubmit } = useForm({
   validationSchema: toTypedSchema(props.schema),
   initialValues: item.value,
 })
