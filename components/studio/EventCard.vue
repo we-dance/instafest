@@ -170,13 +170,19 @@ async function enroll() {
   }
 }
 
-async function withdraw(enrollment: any) {
+async function withdraw() {
   if (!orgId) {
     throw new Error('Organization ID is required')
   }
 
+  if (!enrollment.value) {
+    showAlert('Nicht angemeldet', 'Du bist nicht für diesen Kurs angemeldet.')
+
+    return
+  }
+
   await updateDoc(
-    doc($db, 'organizations', orgId, 'participants', enrollment.id),
+    doc($db, 'organizations', orgId, 'participants', enrollment.value.id),
     {
       canceledAt: new Date(),
       updatedAt: new Date(),
@@ -243,10 +249,8 @@ const isOverCapacity = computed(
           @click="withdraw(enrollment)"
           >Von Warteliste abmelden</Button
         >
-        <Button v-else-if="isOverCapacity" @click="enroll(enrollment)"
-          >Warteliste</Button
-        >
-        <Button v-else @click="enroll(enrollment)">Beitreten</Button>
+        <Button v-else-if="isOverCapacity" @click="enroll()">Warteliste</Button>
+        <Button v-else @click="enroll()">Beitreten</Button>
       </ButtonGroup>
     </CardFooter>
   </Card>
