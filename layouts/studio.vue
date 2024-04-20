@@ -27,7 +27,7 @@ const navigation = computed(() => [
   },
   {
     name: 'Abmelden',
-    to: '/logout',
+    to: link('/app/logout'),
   },
 ])
 </script>

@@ -155,7 +155,16 @@ export default function () {
     return false
   }
 
+  async function logoutUser(): Promise<void> {
+    if (!org) return
+
+    const auth = getAuth()
+    await signOut(auth)
+    user.value = null
+  }
+
   return {
+    logoutUser,
     enrollments,
     loadAccount,
     updateAccount,

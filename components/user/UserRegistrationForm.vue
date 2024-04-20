@@ -76,10 +76,32 @@ const form = useForm({
 const { register } = useCustomer()
 const router = useRouter()
 
+function startMembership(productId, welcomePage) {
+  const product = products.value.find((product) => product.id === productId)
+
+  if (!product.paymentLink) {
+    toast({
+      title: 'Error',
+      description: 'Payment is not activated yet',
+      variant: 'destructive',
+    })
+
+    router.push(welcomePage)
+    return
+  }
+
+  window.location.href = product.paymentLink
+}
+
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await register(values)
-    router.push(`/${org.slug}/app?join=${values.course}`)
+
+    const welcomePage = `/${org.slug}/app?join=${values.course}`
+
+    const packageId = form.values.package
+
+    startMembership(packageId)
   } catch (error) {
     toast({
       title: 'Error',

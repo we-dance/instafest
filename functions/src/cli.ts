@@ -2,73 +2,28 @@ import { initializeApp } from 'firebase-admin/app'
 import * as dotenv from 'dotenv'
 import { Command } from 'commander'
 import * as admin from 'firebase-admin'
-import { getStripe } from './lib/stripe'
+import { createProduct, getStripe } from './lib/stripe'
 
 dotenv.config()
 initializeApp()
 
 const program = new Command()
 
-async function createProduct(productSnap: any, account: any) {
-  const product: any = { ...productSnap.data(), id: productSnap.id }
-
-  if (product.stripeProductId) {
-    return
-  }
-
-  const { stripe, options } = getStripe(account)
-
-  const stripeProduct = await stripe.products.create(
-    {
-      name: product.name,
-      description: product.description,
-      type: 'service',
-    },
-    options
-  )
-
-  const stripePrice = await stripe.prices.create(
-    {
-      unit_amount: product.price * 100,
-      currency: 'eur',
-      product: stripeProduct.id,
-    },
-    options
-  )
-
-  const paymentLink = await stripe.paymentLinks.create(
-    {
-      line_items: [
-        {
-          price: stripePrice.id,
-          quantity: 1,
-        },
-      ],
-    },
-    options
-  )
-
-  const updates = {
-    stripeProductId: stripeProduct.id,
-    stripePriceId: stripePrice.id,
-    paymentLink: paymentLink.url,
-  }
-
-  productSnap.ref.update(updates)
-}
-
 program
   .command('stripe:products:create')
-  .argument('<accountId>', 'Product ID')
+  .argument('<orgId>', 'Org ID')
   .description('Create products in Stripe')
-  .action(async (accountId) => {
+  .action(async (orgId) => {
     const db = admin.firestore()
-    const productSnaps = await db.collection('products').get()
-    const accountSnap = await db.collection('accounts').doc(accountId).get()
-    const account: any = { ...accountSnap.data(), id: accountSnap.id }
+    const orgSnap = await db.collection('organizations').doc(orgId).get()
+    const org: any = { ...orgSnap.data(), id: orgSnap.id }
+
+    const productSnaps = await db
+      .collection(`organizations/${org.slug}/products/`)
+      .get()
 
     for (const productSnap of productSnaps.docs) {
-      await createProduct(productSnap, account)
+      await createProduct(productSnap, org)
     }
   })
 

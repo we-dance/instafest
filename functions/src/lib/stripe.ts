@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
+import { getAppUrl } from './organization'
 
-function getStripe(org: any) {
+export function getStripe(org: any) {
   if (!org) {
     throw new Error('Organization is required')
   }
@@ -16,4 +17,56 @@ function getStripe(org: any) {
   return { stripe, options }
 }
 
-export { getStripe }
+export async function createProduct(productSnap: any, org: any) {
+  const product: any = { ...productSnap.data(), id: productSnap.id }
+
+  if (product.stripeProductId) {
+    return
+  }
+
+  const { stripe, options } = getStripe(org)
+
+  const stripeProduct = await stripe.products.create(
+    {
+      name: product.name,
+      description: product.description,
+      type: 'service',
+    },
+    options
+  )
+
+  const stripePrice = await stripe.prices.create(
+    {
+      unit_amount: product.price * 100,
+      currency: 'eur',
+      product: stripeProduct.id,
+    },
+    options
+  )
+
+  const paymentLink = await stripe.paymentLinks.create(
+    {
+      line_items: [
+        {
+          price: stripePrice.id,
+          quantity: 1,
+        },
+      ],
+      after_completion: {
+        type: 'redirect',
+        redirect: {
+          url: getAppUrl(org, '/'),
+        },
+      },
+    },
+    options
+  )
+
+  const updates = {
+    stripeProductId: stripeProduct.id,
+    stripePriceId: stripePrice.id,
+    paymentLink: paymentLink.url,
+  }
+
+  productSnap.ref.update(updates)
+}

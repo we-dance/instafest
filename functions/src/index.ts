@@ -7,3 +7,4 @@ initializeApp()
 setGlobalOptions({ region: 'europe-west3' })
 
 export { createStripeLink } from './onCall/createStripeLink'
+export { createStripeProduct } from './onCreate/products'

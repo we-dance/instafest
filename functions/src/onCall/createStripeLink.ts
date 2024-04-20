@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin'
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import * as logger from 'firebase-functions/logger'
 import { getStripe } from '../lib/stripe'
+import { getAdminUrl } from '../lib/organization'
 
 export const createStripeLink = onCall(async (request) => {
   const userId = request.auth?.uid
@@ -60,14 +61,11 @@ export const createStripeLink = onCall(async (request) => {
     })
   }
 
-  const isLocal = process.env.FUNCTIONS_EMULATOR === 'true'
-  const baseUrl = isLocal ? process.env.BASE_URL_DEV : process.env.BASE_URL
-
   try {
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: `${baseUrl}/${org.slug}/admin/settings?refresh=true`,
-      return_url: `${baseUrl}/${org.slug}/admin/settings?success=true`,
+      refresh_url: getAdminUrl('/settings?refresh=true'),
+      return_url: getAdminUrl('/settings?success=true'),
       type: 'account_onboarding',
     })
 

@@ -12,9 +12,14 @@ export const durationOptions = [
 
 export const schema = z.object({
   name: z.string(),
-  description: z.string().optional().default(''),
-  price: z.number().gt(0),
+  description: z.string(),
+  price: z.number(),
   duration: z.string().optional().default('0'),
+  paymentLink: z.string().optional().default(''),
+})
+
+export const docSchema = schema.extend({
+  id: z.string(),
 })
 
 const extend = {
@@ -30,4 +35,4 @@ const extend = {
 
 export const columns = getColumnsDef(schema, extend)
 
-export type Product = z.infer<typeof schema>
+export type Product = z.infer<typeof docSchema>
