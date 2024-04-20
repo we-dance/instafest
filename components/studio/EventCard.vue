@@ -20,6 +20,10 @@ const props = defineProps<{
 const { uid, enrollments, account } = useCustomer()
 const { orgId } = useOrganizationStore()
 const { $db } = useNuxtApp()
+const route = useRoute()
+const router = useRouter()
+const autoJoinId = route.query.join
+const loaded = ref(false)
 
 const participants = ref<any[]>([])
 const isAlertOpen = ref(false)
@@ -33,24 +37,37 @@ function showAlert(title: string, description: string) {
 }
 
 onMounted(() => {
-  if (uid.value) {
-    if (!orgId) {
-      throw new Error('Organization ID is required')
-    }
+  if (!uid.value) {
+    throw new Error('User ID is required')
+  }
 
-    const q = query(
-      collection($db, 'organizations', orgId, 'participants'),
-      where('eventId', '==', props.event.id)
-    )
+  if (!orgId) {
+    throw new Error('Organization ID is required')
+  }
 
-    onSnapshot(q, (querySnapshot: QuerySnapshot) => {
-      participants.value = []
-      const docs: Participant[] = []
+  const q = query(
+    collection($db, 'organizations', orgId, 'participants'),
+    where('eventId', '==', props.event.id)
+  )
 
-      querySnapshot.forEach((doc) => {
-        participants.value.push(doc.data())
-      })
+  onSnapshot(q, (querySnapshot: QuerySnapshot) => {
+    participants.value = []
+    const docs: Participant[] = []
+
+    querySnapshot.forEach((doc) => {
+      participants.value.push(doc.data())
     })
+
+    loaded.value = true
+  })
+})
+
+watch(loaded, () => {
+  if (autoJoinId && loaded.value) {
+    if (props.event.id === autoJoinId) {
+      enroll()
+      router.replace({ query: {} })
+    }
   }
 })
 
@@ -83,13 +100,22 @@ const waitlisted = computed(
     ).length
 )
 
-async function enroll(enrollment?: any) {
+async function enroll() {
   if (!orgId) {
     throw new Error('Organization ID is required')
   }
 
   if (!uid.value) {
     throw new Error('User ID is required')
+  }
+
+  if (isRegistered.value) {
+    showAlert(
+      'Bereits angemeldet',
+      'Du bist bereits für diesen Kurs angemeldet.'
+    )
+
+    return
   }
 
   let eventLog
@@ -106,9 +132,9 @@ async function enroll(enrollment?: any) {
     }
   }
 
-  if (enrollment) {
+  if (enrollment.value) {
     await updateDoc(
-      doc($db, 'organizations', orgId, 'participants', enrollment.id),
+      doc($db, 'organizations', orgId, 'participants', enrollment.value.id),
       {
         ...eventLog,
         canceledAt: null,
@@ -131,7 +157,7 @@ async function enroll(enrollment?: any) {
     )
   }
 
-  if (isOverCapacity.value) {
+  if (eventLog.status === ParticipantStatus.WAITLISTED) {
     showAlert(
       'Warteliste',
       'Du bist auf der Warteliste gelandet. Wir informieren dich, sobald ein Platz frei wird!'

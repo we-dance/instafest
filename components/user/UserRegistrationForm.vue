@@ -79,7 +79,7 @@ const router = useRouter()
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await register(values)
-    router.push(`/${org.slug}/app`)
+    router.push(`/${org.slug}/app?join=${values.course}`)
   } catch (error) {
     toast({
       title: 'Error',
