@@ -79,6 +79,11 @@ const router = useRouter()
 function startMembership(productId, welcomePage) {
   const product = products.value.find((product) => product.id === productId)
 
+  if (!product.price) {
+    router.push(welcomePage)
+    return
+  }
+
   if (!product.paymentLink) {
     toast({
       title: 'Error',
