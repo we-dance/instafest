@@ -11,32 +11,17 @@ import { useForm, configure } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { customerAccountSchemaInput } from '~/types/customerAccount'
 import { toast } from '~/components/ui/toast/use-toast'
+import { getEventDates } from '~/lib/utils'
 
 const { org, orgId } = useOrganizationStore()
 const { $db } = useNuxtApp()
 const events = ref([])
 const products = ref([])
 
-function getLabel(event) {
-  if (!event.startDate || !event.endDate) return ''
-
-  return `${event.startDate.toLocaleDateString('de-DE', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })}, ${event.startDate.toLocaleTimeString('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })}-${event.endDate.toLocaleTimeString('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })}`
-}
-
 const eventsOptions = computed(() =>
   events.value.map((event) => ({
     value: event.id,
-    label: getLabel(event),
+    label: getEventDates(event),
   }))
 )
 

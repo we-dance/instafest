@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CellContext, ColumnDef } from '@tanstack/vue-table'
 import {
   collection as firebaseCollection,
   deleteDoc,
@@ -7,7 +8,7 @@ import {
   query,
 } from 'firebase/firestore'
 import AdminRowActions from '~/components/admin/AdminRowActions'
-import { getColumnsDef, getFieldsDef } from '~/lib/utils'
+import { getColumnsDef, getFieldsDef, normalizeDoc } from '~/lib/utils'
 
 const props = defineProps({
   header: {
@@ -28,7 +29,7 @@ const props = defineProps({
   },
   add: {
     type: String,
-    default: 'Add',
+    default: '',
   },
   edit: {
     type: String,
@@ -45,9 +46,9 @@ const props = defineProps({
 const { $db } = useNuxtApp()
 const { orgId } = useOrganizationStore()
 
-const unsubscribe = ref(null)
-const items = ref([])
-const item = ref({})
+const unsubscribe = ref<any>(null)
+const items = ref<any[]>([])
+const item = ref<any>({})
 const editing = ref(false)
 
 function onEdit(id: string) {
@@ -56,17 +57,21 @@ function onEdit(id: string) {
 }
 
 async function onRemove(id: string) {
+  if (!orgId) return
+
   await deleteDoc(doc($db, 'organizations', orgId, props.collection, id))
 }
 
 onMounted(() => {
+  if (!orgId) return
+
   const q = query(
     firebaseCollection($db, 'organizations', orgId, props.collection)
   )
 
   unsubscribe.value = onSnapshot(q, (querySnapshot) => {
     items.value = []
-    let docs = []
+    let docs: any[] = []
 
     querySnapshot.forEach((doc) => {
       docs.push({
@@ -75,18 +80,7 @@ onMounted(() => {
       })
     })
 
-    docs = docs.map((doc) => {
-      const result = { ...doc }
-      if (result.startDate) {
-        result.startDate = result.startDate.toDate()
-      }
-      if (result.endDate) {
-        result.endDate = result.endDate.toDate()
-      }
-      return result
-    })
-
-    items.value = docs
+    items.value = docs.map(normalizeDoc)
   })
 })
 
@@ -100,9 +94,9 @@ const extendedColumns = [
   {
     id: 'actions',
     enableHiding: false,
-    cell: ({ row }) => {
+    cell: (ctx: CellContext<any, any>) => {
       return h(AdminRowActions, {
-        item: row.original,
+        item: ctx.row.original,
         onEdit: onEdit,
         onRemove: onRemove,
       })
@@ -113,7 +107,7 @@ const extendedColumns = [
 
 <template>
   <AdminPage :header="header" :subheader="subheader">
-    <template #toolbar>
+    <template v-if="add" #toolbar>
       <Button variant="outline" @click="onEdit('-')">{{ add }}</Button>
     </template>
 

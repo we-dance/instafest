@@ -4,14 +4,7 @@ definePageMeta({
   colorMode: 'dark',
 })
 
-import {
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  query,
-  getDocs,
-} from 'firebase/firestore'
+import { collection, deleteDoc, doc, query, getDocs } from 'firebase/firestore'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { customerAccountSchema } from '~/types/customerAccount'

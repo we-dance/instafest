@@ -25,6 +25,10 @@ const navigation = computed(() => [
     to: link('/app/settings'),
     icon: UserIcon,
   },
+  {
+    name: 'Abmelden',
+    to: '/logout',
+  },
 ])
 </script>
 

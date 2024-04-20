@@ -22,9 +22,13 @@ const { login } = useCustomer()
 const router = useRouter()
 
 const onSubmit = form.handleSubmit(async (values: any) => {
+  if (!org) {
+    throw new Error('Organization is required')
+  }
+
   try {
     await login(values.email, values.password)
-    router.replace(`/${org.slug}/app/settings`)
+    router.replace(`/${org.slug}/app/`)
   } catch (error: any) {
     toast({
       title: 'Error',

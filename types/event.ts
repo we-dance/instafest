@@ -5,6 +5,11 @@ export const schema = z.object({
   description: z.string().optional().default(''),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
+  capacity: z.number(),
 })
 
-export type Event = z.infer<typeof schema>
+const existing = schema.extend({
+  id: z.string(),
+})
+
+export type Event = z.infer<typeof existing>

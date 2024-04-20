@@ -5,7 +5,17 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import {
+  QuerySnapshot,
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore'
 import {
   customerAccountSchema,
   type CustomerAccount,
@@ -22,6 +32,7 @@ export default function () {
   )
   const user = useState<User | null>('user', () => null)
   const account = useState<CustomerAccount | null>('account', () => null)
+  const enrollments = useState<any[]>('enrolments', () => [])
   const uid = computed(() => user.value?.uid)
 
   async function logoutUser(): Promise<void> {
@@ -32,6 +43,27 @@ export default function () {
 
     await signOut(auth)
     user.value = null
+  }
+
+  function initEnrollments() {
+    if (!uid.value) return
+    if (!org) return
+
+    const q = query(
+      collection($db, 'organizations', org.id, 'participants'),
+      where('customerId', '==', uid.value)
+    )
+
+    onSnapshot(q, (querySnapshot: QuerySnapshot) => {
+      enrollments.value = []
+
+      querySnapshot.forEach((doc) => {
+        enrollments.value.push({
+          ...doc.data(),
+          id: doc.id,
+        })
+      })
+    })
   }
 
   async function loadAccount() {
@@ -51,6 +83,8 @@ export default function () {
     } catch (error) {
       logoutUser()
     }
+
+    initEnrollments()
 
     return account.value
   }
@@ -122,6 +156,7 @@ export default function () {
   }
 
   return {
+    enrollments,
     loadAccount,
     updateAccount,
     register,

@@ -7,6 +7,7 @@ import type { ColumnDef } from '@tanstack/vue-table'
 import { z } from 'zod'
 import Input from '~/components/ui/input/Input.vue'
 import { InputDate, InputSelect } from '~/components/ui/input'
+import type { Event } from '~/types/event'
 
 const df = new DateFormatter('en-US', {
   dateStyle: 'long',
@@ -42,6 +43,34 @@ export type FieldDef = {
   label: string
   as: any
   bind: Record<string, any>
+}
+
+export function getEventDates(event: Event) {
+  if (!event.startDate || !event.endDate) return ''
+
+  return `${event.startDate.toLocaleDateString('de-DE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })}, ${event.startDate.toLocaleTimeString('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}-${event.endDate.toLocaleTimeString('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
+}
+
+export function normalizeDoc(doc: any) {
+  const result = { ...doc }
+
+  Object.keys(doc).forEach((key) => {
+    if (doc[key] && doc[key].toDate) {
+      result[key] = doc[key].toDate()
+    }
+  })
+
+  return result
 }
 
 export function getFieldsDef(
@@ -92,7 +121,11 @@ export function getColumnsDef<T>(
       return column
     }
 
-    if (schema.shape[key]._def.typeName === 'ZodDate') {
+    if (
+      schema.shape[key]._def.typeName === 'ZodDate' ||
+      (schema.shape[key]._def.typeName == 'ZodOptional' &&
+        schema.shape[key]._def.innerType._def.typeName === 'ZodDate')
+    ) {
       column.cell = ({ row }) => {
         return formatDate(row.getValue(key))
       }
