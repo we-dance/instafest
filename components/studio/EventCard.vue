@@ -237,16 +237,13 @@ const isOverCapacity = computed(
     </CardContent>
     <CardFooter>
       <ButtonGroup>
-        <Button
-          v-if="isRegistered"
-          variant="destructive"
-          @click="withdraw(enrollment)"
+        <Button v-if="isRegistered" variant="destructive" @click="withdraw()"
           >Verlassen</Button
         >
         <Button
           v-else-if="isWaitlisted"
           variant="destructive"
-          @click="withdraw(enrollment)"
+          @click="withdraw()"
           >Von Warteliste abmelden</Button
         >
         <Button v-else-if="isOverCapacity" @click="enroll()">Warteliste</Button>
