@@ -9,7 +9,7 @@ export default defineNuxtPlugin(() => {
     const hostname: string = window.location.hostname
 
     switch (hostname) {
-      case 'montuno.club':
+      case 'app.montuno.club':
         if (!to.path.startsWith('/montunoclub')) {
           next('/montunoclub' + to.path)
         } else {
