@@ -16,7 +16,6 @@ export default defineNuxtConfig({
     public: {
       firebaseConfig: process.env.FIREBASE_CONFIG,
       emulators: process.env.FIREBASE_EMULATORS === 'true',
-      stripeMode: process.env.STRIPE_MODE,
     },
   },
   modules: [

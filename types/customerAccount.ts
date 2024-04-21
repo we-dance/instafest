@@ -18,6 +18,8 @@ export const customerAccountSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string(),
+  level: z.string(),
+  package: z.string(),
 })
 
 const genderOptions: Record<string, string> = {
