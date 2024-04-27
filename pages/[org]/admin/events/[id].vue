@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import {
-  doc,
-  collection,
-  getDoc,
-  query,
-  where,
-  onSnapshot,
-  updateDoc,
-} from 'firebase/firestore'
+import { doc, collection, onSnapshot } from 'firebase/firestore'
 import { h } from 'vue'
+import { until } from '@vueuse/core'
 import { Button } from '~/components/ui/button/index'
 import { formatDate, normalizeDoc, getEventDates } from '~/lib/utils'
 import { type Participant, ParticipantStatus } from '~/types/participant'
@@ -38,6 +31,8 @@ const eventRef = doc(collection($db, 'organizations', orgId, 'events'), eventId)
 onSnapshot(eventRef, (eventSnap) => {
   event.value = normalizeDoc({ ...eventSnap.data(), id: eventSnap.id })
 })
+
+await until(event).not.toBeNull()
 
 const { participants, updateParticipant } = useEvent(event)
 
@@ -110,7 +105,9 @@ const columns: ColumnDef<any>[] = [
 </script>
 
 <template>
-  <AdminPage :header="event.name" :subheader="getEventDates(event)">
-    <DataTable :data="participants" :columns="columns" />
-  </AdminPage>
+  <Suspense>
+    <AdminPage :header="event.name" :subheader="getEventDates(event)">
+      <DataTable :data="participants" :columns="columns" />
+    </AdminPage>
+  </Suspense>
 </template>
