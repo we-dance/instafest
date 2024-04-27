@@ -50,18 +50,16 @@ export default function () {
     if (!org) return
 
     const q = query(
-      collection($db, 'organizations', org.id, 'participants'),
-      where('customerId', '==', uid.value)
+      collection($db, 'organizations', org.id, 'events'),
+      where(`participants.${uid.value}.customerId`, '==', uid.value)
     )
 
     onSnapshot(q, (querySnapshot: QuerySnapshot) => {
       enrollments.value = []
 
       querySnapshot.forEach((doc) => {
-        enrollments.value.push({
-          ...doc.data(),
-          id: doc.id,
-        })
+        const event = doc.data()
+        enrollments.value.push(event.participants[uid.value])
       })
     })
   }

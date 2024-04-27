@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { schema as ParticipantSchema } from './participant'
 
 export const schema = z.object({
   name: z.string(),
@@ -10,6 +11,7 @@ export const schema = z.object({
 
 const existing = schema.extend({
   id: z.string(),
+  participants: z.record(ParticipantSchema),
 })
 
 export type Event = z.infer<typeof existing>

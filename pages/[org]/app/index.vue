@@ -1,5 +1,5 @@
 <script setup>
-import { collection, getDocs, query } from 'firebase/firestore'
+import { collection, getDocs, query, onSnapshot } from 'firebase/firestore'
 import { getEventDates } from '~/lib/utils'
 
 definePageMeta({
@@ -13,20 +13,21 @@ const { $db } = useNuxtApp()
 const events = ref([])
 
 onMounted(async () => {
-  const eventRefs = await getDocs(
-    query(collection($db, 'organizations', orgId, 'events'))
-  )
-  events.value = eventRefs.docs
-    .map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }))
-    .map((event) => {
-      event.startDate = event.startDate ? event.startDate.toDate() : ''
-      event.endDate = event.endDate ? event.endDate.toDate() : ''
+  const q = query(collection($db, 'organizations', orgId, 'events'))
 
-      return event
-    })
+  onSnapshot(q, (eventRefs) => {
+    events.value = eventRefs.docs
+      .map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }))
+      .map((event) => {
+        event.startDate = event.startDate ? event.startDate.toDate() : ''
+        event.endDate = event.endDate ? event.endDate.toDate() : ''
+
+        return event
+      })
+  })
 })
 </script>
 

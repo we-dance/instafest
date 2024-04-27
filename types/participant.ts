@@ -18,7 +18,7 @@ export const schema = z.object({
   joinedAt: z.coerce.date().optional(),
   invitedAt: z.coerce.date().optional(),
   declinedAt: z.coerce.date().optional(),
-  canceledAt: z.coerce.date().optional(),
+  canceledAt: z.coerce.date().optional().nullable(),
   waitlistedAt: z.coerce.date().optional(),
   role: z.string(),
   status: z.nativeEnum(ParticipantStatus),

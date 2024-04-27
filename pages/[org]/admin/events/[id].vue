@@ -48,33 +48,9 @@ const { data: event } = await useAsyncData('event', async () => {
   return normalizeDoc(eventSnap.data())
 })
 
-const participants = ref<any[]>([])
-
-onMounted(() => {
-  if (!eventId) {
-    throw new Error('Event ID is required')
-  }
-
-  if (!orgId) {
-    throw new Error('Organization ID is required')
-  }
-
-  const q = query(
-    collection($db, 'organizations', orgId, 'participants'),
-    where('eventId', '==', eventId)
-  )
-
-  onSnapshot(q, (querySnapshot) => {
-    participants.value = []
-    const docs: any[] = []
-
-    querySnapshot.forEach((doc) => {
-      docs.push({ ...doc.data(), id: doc.id })
-    })
-
-    participants.value = docs.map(normalizeDoc)
-  })
-})
+const participants = computed(() =>
+  event.value?.participants ? Object.values(event.value.participants) : []
+)
 
 async function checkin(participant: Participant, on: boolean) {
   const participantRef = doc(

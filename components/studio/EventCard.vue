@@ -23,9 +23,11 @@ const { $db } = useNuxtApp()
 const route = useRoute()
 const router = useRouter()
 const autoJoinId = route.query.join
-const loaded = ref(false)
 
-const participants = ref<any[]>([])
+const participants = computed(() =>
+  props.event?.participants ? Object.values(props.event.participants) : []
+)
+
 const isAlertOpen = ref(false)
 const alertTitle = ref('')
 const alertDescription = ref('')
@@ -45,29 +47,9 @@ onMounted(() => {
     throw new Error('Organization ID is required')
   }
 
-  const q = query(
-    collection($db, 'organizations', orgId, 'participants'),
-    where('eventId', '==', props.event.id)
-  )
-
-  onSnapshot(q, (querySnapshot: QuerySnapshot) => {
-    participants.value = []
-    const docs: Participant[] = []
-
-    querySnapshot.forEach((doc) => {
-      participants.value.push(doc.data())
-    })
-
-    loaded.value = true
-  })
-})
-
-watch(loaded, () => {
-  if (autoJoinId && loaded.value) {
-    if (props.event.id === autoJoinId) {
-      enroll()
-      router.replace({ query: {} })
-    }
+  if (autoJoinId && props.event.id === autoJoinId) {
+    enroll()
+    router.replace({ query: {} })
   }
 })
 
@@ -99,6 +81,29 @@ const waitlisted = computed(
       (p: Participant) => p.status === ParticipantStatus.WAITLISTED
     ).length
 )
+
+async function updateEventParticipant(eventId: string, participant: any) {
+  if (!orgId) {
+    throw new Error('Organization ID is required')
+  }
+
+  if (!uid.value) {
+    throw new Error('User ID is required')
+  }
+
+  const existingParticipant = props.event.participants?.[uid.value] || {}
+
+  const update = {
+    ...existingParticipant,
+    ...participant,
+  }
+
+  const eventRef = doc($db, 'organizations', orgId, 'events', eventId)
+
+  await updateDoc(eventRef, {
+    [`participants.${uid.value}`]: update,
+  })
+}
 
 async function enroll() {
   if (!orgId) {
@@ -133,28 +138,20 @@ async function enroll() {
   }
 
   if (enrollment.value) {
-    await updateDoc(
-      doc($db, 'organizations', orgId, 'participants', enrollment.value.id),
-      {
-        ...eventLog,
-        canceledAt: null,
-        updatedAt: new Date(),
-      }
-    )
+    await updateEventParticipant(props.event.id, {
+      ...eventLog,
+      canceledAt: null,
+      updatedAt: new Date(),
+    })
   } else {
-    const newEnrollment = {
+    await updateEventParticipant(props.event.id, {
       ...eventLog,
       customerId: uid.value,
-      name: account.value?.name,
+      name: account.value?.name || '',
       eventId: props.event.id,
       updatedAt: new Date(),
       role: account.value?.gender === 'male' ? 'leader' : 'follower',
-    }
-
-    await addDoc(
-      collection($db, 'organizations', orgId, 'participants'),
-      newEnrollment
-    )
+    })
   }
 
   if (eventLog.status === ParticipantStatus.WAITLISTED) {
@@ -181,14 +178,11 @@ async function withdraw() {
     return
   }
 
-  await updateDoc(
-    doc($db, 'organizations', orgId, 'participants', enrollment.value.id),
-    {
-      canceledAt: new Date(),
-      updatedAt: new Date(),
-      status: ParticipantStatus.CANCELED,
-    }
-  )
+  await updateEventParticipant(props.event.id, {
+    canceledAt: new Date(),
+    updatedAt: new Date(),
+    status: ParticipantStatus.CANCELED,
+  })
 
   showAlert(
     'Abmeldung bestätigt',
