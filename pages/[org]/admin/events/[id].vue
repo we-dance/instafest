@@ -29,6 +29,13 @@ if (!orgId) {
 const eventRef = doc(collection($db, 'organizations', orgId, 'events'), eventId)
 
 onSnapshot(eventRef, (eventSnap) => {
+  if (!eventSnap.exists()) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Event Not Found',
+    })
+  }
+
   event.value = normalizeDoc({ ...eventSnap.data(), id: eventSnap.id })
 })
 
