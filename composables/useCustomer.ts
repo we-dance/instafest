@@ -5,17 +5,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import {
-  QuerySnapshot,
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import {
   customerAccountSchema,
   type CustomerAccount,
@@ -32,37 +22,7 @@ export default function () {
   )
   const user = useState<User | null>('user', () => null)
   const account = useState<CustomerAccount | null>('account', () => null)
-  const enrollments = useState<any[]>('enrolments', () => [])
   const uid = computed(() => user.value?.uid)
-
-  async function logoutUser(): Promise<void> {
-    const auth = getAuth()
-    if (!org) return
-
-    auth.tenantId = org.tenantId
-
-    await signOut(auth)
-    user.value = null
-  }
-
-  function initEnrollments() {
-    if (!uid.value) return
-    if (!org) return
-
-    const q = query(
-      collection($db, 'organizations', org.id, 'events'),
-      where(`participants.${uid.value}.customerId`, '==', uid.value)
-    )
-
-    onSnapshot(q, (querySnapshot: QuerySnapshot) => {
-      enrollments.value = []
-
-      querySnapshot.forEach((doc) => {
-        const event = doc.data()
-        enrollments.value.push(event.participants[uid.value])
-      })
-    })
-  }
 
   async function loadAccount() {
     await until(authStateInitialized).toBe(true)
@@ -81,8 +41,6 @@ export default function () {
     } catch (error) {
       logoutUser()
     }
-
-    initEnrollments()
 
     return account.value
   }
@@ -163,7 +121,6 @@ export default function () {
 
   return {
     logoutUser,
-    enrollments,
     loadAccount,
     updateAccount,
     register,

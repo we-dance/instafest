@@ -23,50 +23,34 @@ const { $db } = useNuxtApp()
 const route = useRoute()
 const eventId = route.params.id
 
-const { data: event } = await useAsyncData('event', async () => {
-  if (!eventId) {
-    throw new Error('Event ID is required')
-  }
+const event = ref<Event | null>(null)
 
-  if (!orgId) {
-    throw new Error('Organization ID is required')
-  }
+if (!eventId) {
+  throw new Error('Event ID is required')
+}
 
-  const eventRef = doc(
-    collection($db, 'organizations', orgId, 'events'),
-    eventId
-  )
-  const eventSnap = await getDoc(eventRef)
+if (!orgId) {
+  throw new Error('Organization ID is required')
+}
 
-  if (!eventSnap.exists()) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Page Not Found',
-    })
-  }
+const eventRef = doc(collection($db, 'organizations', orgId, 'events'), eventId)
 
-  return normalizeDoc(eventSnap.data())
+onSnapshot(eventRef, (eventSnap) => {
+  event.value = normalizeDoc({ ...eventSnap.data(), id: eventSnap.id })
 })
 
-const participants = computed(() =>
-  event.value?.participants ? Object.values(event.value.participants) : []
-)
+const { participants, updateParticipant } = useEvent(event)
 
 async function checkin(participant: Participant, on: boolean) {
-  const participantRef = doc(
-    collection($db, 'organizations', orgId, 'participants'),
-    participant.id
-  )
-
   if (on) {
-    await updateDoc(participantRef, {
+    await updateParticipant(participant.customerId, {
       status: ParticipantStatus.CHECKED_IN,
       updatedAt: new Date(),
       checkedInAt: new Date(),
       checkInStatus: participant.status,
     })
   } else {
-    await updateDoc(participantRef, {
+    await updateParticipant(participant.customerId, {
       status: participant.checkInStatus || ParticipantStatus.REGISTERED,
       updatedAt: new Date(),
       checkedInAt: null,

@@ -1,32 +1,30 @@
 <script setup lang="ts">
-import {
-  QuerySnapshot,
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from 'firebase/firestore'
 import { getEventDates } from '~/lib/utils'
 import type { Event } from '~/types/event'
-import { ParticipantStatus, type Participant } from '~/types/participant'
+import { ParticipantStatus } from '~/types/participant'
 
 const props = defineProps<{
   event: Event
 }>()
 
-const { uid, enrollments, account } = useCustomer()
+const event = toRef(props, 'event')
+const { uid, account } = useCustomer()
 const { orgId } = useOrganizationStore()
-const { $db } = useNuxtApp()
+const {
+  updateParticipant,
+  enrollment,
+  isRegistered,
+  isOverCapacity,
+  isWaitlisted,
+  total,
+  followers,
+  waitlisted,
+  leaders,
+} = useEvent(event)
+
 const route = useRoute()
 const router = useRouter()
 const autoJoinId = route.query.join
-
-const participants = computed(() =>
-  props.event?.participants ? Object.values(props.event.participants) : []
-)
 
 const isAlertOpen = ref(false)
 const alertTitle = ref('')
@@ -39,71 +37,11 @@ function showAlert(title: string, description: string) {
 }
 
 onMounted(() => {
-  if (!uid.value) {
-    throw new Error('User ID is required')
-  }
-
-  if (!orgId) {
-    throw new Error('Organization ID is required')
-  }
-
   if (autoJoinId && props.event.id === autoJoinId) {
     enroll()
     router.replace({ query: {} })
   }
 })
-
-function isActive(participant: Participant) {
-  return [ParticipantStatus.REGISTERED, ParticipantStatus.CHECKED_IN].includes(
-    participant.status
-  )
-}
-
-const total = computed(
-  () => participants.value.filter((p: Participant) => isActive(p)).length
-)
-
-const followers = computed(
-  () =>
-    participants.value.filter(
-      (p: Participant) => isActive(p) && p.role === 'follower'
-    ).length
-)
-const leaders = computed(
-  () =>
-    participants.value.filter(
-      (p: Participant) => isActive(p) && p.role === 'leader'
-    ).length
-)
-const waitlisted = computed(
-  () =>
-    participants.value.filter(
-      (p: Participant) => p.status === ParticipantStatus.WAITLISTED
-    ).length
-)
-
-async function updateEventParticipant(eventId: string, participant: any) {
-  if (!orgId) {
-    throw new Error('Organization ID is required')
-  }
-
-  if (!uid.value) {
-    throw new Error('User ID is required')
-  }
-
-  const existingParticipant = props.event.participants?.[uid.value] || {}
-
-  const update = {
-    ...existingParticipant,
-    ...participant,
-  }
-
-  const eventRef = doc($db, 'organizations', orgId, 'events', eventId)
-
-  await updateDoc(eventRef, {
-    [`participants.${uid.value}`]: update,
-  })
-}
 
 async function enroll() {
   if (!orgId) {
@@ -138,13 +76,13 @@ async function enroll() {
   }
 
   if (enrollment.value) {
-    await updateEventParticipant(props.event.id, {
+    await updateParticipant(uid.value, {
       ...eventLog,
       canceledAt: null,
       updatedAt: new Date(),
     })
   } else {
-    await updateEventParticipant(props.event.id, {
+    await updateParticipant(uid.value, {
       ...eventLog,
       customerId: uid.value,
       name: account.value?.name || '',
@@ -178,7 +116,7 @@ async function withdraw() {
     return
   }
 
-  await updateEventParticipant(props.event.id, {
+  await updateParticipant(uid.value, {
     canceledAt: new Date(),
     updatedAt: new Date(),
     status: ParticipantStatus.CANCELED,
@@ -189,24 +127,6 @@ async function withdraw() {
     'Schade, dass du nicht dabei sein kannst. Wir hoffen, dich bald wieder bei uns begrüßen zu dürfen!'
   )
 }
-
-const enrollment = computed(() =>
-  enrollments.value?.find((e) => e.eventId === props.event.id)
-)
-
-const isRegistered = computed(
-  () =>
-    enrollment.value && enrollment.value.status === ParticipantStatus.REGISTERED
-)
-
-const isWaitlisted = computed(
-  () =>
-    enrollment.value && enrollment.value.status === ParticipantStatus.WAITLISTED
-)
-
-const isOverCapacity = computed(
-  () => props.event.capacity && total.value >= props.event.capacity
-)
 </script>
 
 <template>
@@ -230,19 +150,14 @@ const isOverCapacity = computed(
       </div>
     </CardContent>
     <CardFooter>
-      <ButtonGroup>
-        <Button v-if="isRegistered" variant="destructive" @click="withdraw()"
-          >Verlassen</Button
-        >
-        <Button
-          v-else-if="isWaitlisted"
-          variant="destructive"
-          @click="withdraw()"
-          >Von Warteliste abmelden</Button
-        >
-        <Button v-else-if="isOverCapacity" @click="enroll()">Warteliste</Button>
-        <Button v-else @click="enroll()">Beitreten</Button>
-      </ButtonGroup>
+      <Button v-if="isRegistered" variant="destructive" @click="withdraw()"
+        >Verlassen</Button
+      >
+      <Button v-else-if="isWaitlisted" variant="destructive" @click="withdraw()"
+        >Von Warteliste abmelden</Button
+      >
+      <Button v-else-if="isOverCapacity" @click="enroll()">Warteliste</Button>
+      <Button v-else @click="enroll()">Beitreten</Button>
     </CardFooter>
   </Card>
 
